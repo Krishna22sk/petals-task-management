@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  password       String
+  phone          String?
+  employee_id    String?
+  department_id  String?
+  designation_id String?
+  role_id        String
+  role           Role           @relation(fields: [role_id], references: [id])
+  department     Department?    @relation(fields: [department_id], references: [id])
+  status         String         @default("Active")
+  profile_image  String?
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+
+  employee       Employee?
+  activity_logs  ActivityLog[]
+  login_history  LoginHistory[]
+  comments       Comment[]
+  attachments    Attachment[]
+  time_trackings TimeTracking[]
+  notifications  Notification[]
+
+  @@map("users")
+}
+
+model Department {
+  id              String   @id @default(uuid())
+  department_name String   @unique
+  code            String?  @unique
+  created_at      DateTime @default(now())
+  users           User[]
+
+  @@map("departments")
+}
+
+model Role {
+  id               String           @id @default(uuid())
+  role_name        String           @unique
+  description      String?
+  created_at       DateTime         @default(now())
+  users            User[]
+  role_permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id               String           @id @default(uuid())
+  permission_name  String           @unique
+  category         String
+  created_at       DateTime         @default(now())
+  role_permissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       String
+  permission_id String
+  role          Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model Employee {
+  id          String   @id @default(uuid())
+  user_id     String   @unique
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  name        String
+  email       String   @unique
+  role        String
+  designation String?
+  department  String?
+  phone       String?
+  status      String   @default("Active")
+  avatar      String?
+  tasks_count Int      @default(0)
+  efficiency  Float    @default(100.0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("employees")
+}
+
+model Project {
+  id                  String   @id @default(uuid())
+  project_name        String
+  project_code        String   @unique
+  category            String?
+  description         String?
+  created_by          String?
+  lead_employee_id    String?
+  status              String   @default("In Progress")
+  start_date          DateTime?
+  end_date            DateTime?
+  budget_hours        Int      @default(0)
+  logged_hours        Int      @default(0)
+  progress_percentage Float    @default(0.0)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  tasks               Task[]
+
+  @@map("projects")
+}
+
+model Task {
+  id                    String          @id @default(uuid())
+  task_title            String
+  task_code             String?
+  description           String?
+  project_id            String?
+  project               Project?        @relation(fields: [project_id], references: [id], onDelete: SetNull)
+  project_name          String?
+  category              String?
+  assigned_by           String?
+  assigned_to           String?
+  assignee_name         String?
+  priority              String          @default("Medium")
+  status                String          @default("Pending")
+  start_date            DateTime?
+  due_date              DateTime?
+  estimated_hours       Float           @default(0.0)
+  actual_hours          Float           @default(0.0)
+  completion_percentage Float           @default(0.0)
+  timer_running         Boolean         @default(false)
+  timer_started_at      DateTime?
+  created_at            DateTime        @default(now())
+  updated_at            DateTime        @updatedAt
+
+  checklists            TaskChecklist[]
+  attachments           Attachment[]
+  comments              Comment[]
+  time_trackings        TimeTracking[]
+
+  @@map("tasks")
+}
+
+model TaskChecklist {
+  id         String   @id @default(uuid())
+  task_id    String
+  task       Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  title      String
+  completed  Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@map("task_checklists")
+}
+
+model Attachment {
+  id          String   @id @default(uuid())
+  task_id     String
+  task        Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  file_name   String
+  file_url    String
+  uploaded_by String?
+  user        User?    @relation(fields: [uploaded_by], references: [id])
+  file_size   Int?
+  mime_type   String?
+  uploaded_at DateTime @default(now())
+
+  @@map("attachments")
+}
+
+model Comment {
+  id            String   @id @default(uuid())
+  task_id       String
+  task          Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  comment       String
+  comment_by    String?
+  user          User?    @relation(fields: [comment_by], references: [id])
+  author_name   String?
+  author_avatar String?
+  created_at    DateTime @default(now())
+
+  @@map("comments")
+}
+
+model Notification {
+  id                    String   @id @default(uuid())
+  user_id               String?
+  user                  User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  target_employee_email String?
+  role                  String?
+  title                 String
+  message               String
+  is_read               Boolean  @default(false)
+  created_at            DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  user_id     String?
+  user        User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  action      String
+  description String?
+  ip_address  String?
+  device      String?
+  created_at  DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+model LoginHistory {
+  id          String    @id @default(uuid())
+  user_id     String
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  login_time  DateTime  @default(now())
+  logout_time DateTime?
+  ip_address  String?
+
+  @@map("login_history")
+}
+
+model TimeTracking {
+  id         String    @id @default(uuid())
+  task_id    String
+  task       Task      @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  user_id    String
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  start_time DateTime?
+  end_time   DateTime?
+  duration   Float?
+  created_at DateTime  @default(now())
+
+  @@map("time_tracking")
+}
+
+model EmployeeQuery {
+  id             String   @id @default(uuid())
+  employee_id    String?
+  employee_name  String
+  employee_email String
+  subject        String
+  category       String
+  priority       String
+  message        String
+  status         String   @default("Pending")
+  reply          String?
+  created_at     DateTime @default(now())
+
+  @@map("employee_queries")
+}

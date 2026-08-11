@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petals Automation - Soft SaaS Enterprise OS</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            purple: {
+              50: '#F3F1FF',
+              100: '#ECE8FF',
+              500: '#8B7BFF', // Secondary Purple
+              600: '#6D5EF8', // Primary Purple
+              700: '#5849D6',
+            },
+            slate: {
+              50: '#FAFBFF',  // Light Soft Canvas Background
+              100: '#F4F2FF',
+              200: '#ECECF5',  // Border Color
+              400: '#9CA3AF',
+              500: '#6B7280',
+              900: '#202124',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  
+  <!-- Babel Standalone CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAFBFF;
+      color: #202124;
+      letter-spacing: -0.01em;
+    }
+    
+    .soft-card {
+      background-color: #FFFFFF;
+      border: 1px solid #ECECF5;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0px 10px 35px rgba(108, 92, 231, 0.10);
+      transition: transform 300ms ease, box-shadow 300ms ease;
+    }
+
+    .soft-card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0px 18px 45px rgba(108, 92, 231, 0.18);
+    }
+
+    .btn-purple-gradient {
+      background: linear-gradient(135deg, #6D5EF8 0%, #8B7BFF 100%);
+      color: #FFFFFF;
+      font-weight: 700;
+      border-radius: 14px;
+      box-shadow: 0px 8px 25px rgba(109, 94, 248, 0.25);
+      transition: all 250ms ease;
+    }
+
+    .btn-purple-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0px 12px 30px rgba(109, 94, 248, 0.38);
+    }
+
+    .sidebar-active {
+      background: linear-gradient(135deg, #6D5EF8 0%, #8B7BFF 100%) !important;
+      color: #FFFFFF !important;
+      font-weight: 700 !important;
+      box-shadow: 0px 6px 20px rgba(109, 94, 248, 0.3) !important;
+      border-radius: 14px !important;
+    }
+
+    .hero-title { font-size: 56px; line-height: 1.1; font-weight: 800; letter-spacing: -0.025em; }
+    .heading-title { font-size: 34px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+    .section-title { font-size: 26px; line-height: 1.25; font-weight: 700; letter-spacing: -0.015em; }
+    .card-title { font-size: 20px; line-height: 1.3; font-weight: 600; }
+    .body-text { font-size: 16px; line-height: 1.5; }
+    .small-text { font-size: 14px; line-height: 1.4; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6D5EF8; }
+  </style>
+</head>
+<body class="selection:bg-purple-600 selection:text-white overflow-x-hidden">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Accounts Database
+    const USER_DATABASE = [
+      {
+        id: 'usr-admin',
+        email: 'admin@petals.com',
+        password: 'admin123',
+        name: 'Sarah Jenkins',
+        role: 'Admin',
+        designation: 'VP of HR & Operations',
+        department: 'Human Resources & Executive',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+      },
+      {
+        id: 'usr-tl',
+        email: 'tl@petals.com',
+        password: 'tl123',
+        name: 'Rajesh Kulkarni',
+        role: 'Team Leader',
+        designation: 'Embedded Systems Lead Engineer',
+        department: 'Embedded Systems',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+      }
+    ];
+
+    const INITIAL_PROJECTS = [
+      { id: 'prj-101', code: 'PET-MOT-04', name: 'STM32 Dual-Core Motor Controller Firmware', category: 'Embedded Systems', status: 'Active', progress: 78, deadline: '2026-08-25', lead: 'Rajesh Kulkarni', budgetHours: 320, loggedHours: 245, description: 'High-speed vector control algorithm development for 3-phase industrial servo motors.' },
+      { id: 'prj-102', code: 'PET-SCA-09', name: 'Next-Gen SCADA Plant Supervisory Dashboard', category: 'SCADA Software', status: 'Active', progress: 62, deadline: '2026-09-10', lead: 'Rajesh Kulkarni', budgetHours: 450, loggedHours: 280, description: 'Real-time telemetry and predictive maintenance Web SCADA interface.' }
+    ];
+
+    const INITIAL_EMPLOYEES = [];
+
+    const INITIAL_TASKS = [];
+
+    const INITIAL_DEPARTMENTS = [
+      'Embedded Systems',
+      'Embedded Developer',
+      'SCADA Software',
+      'Software Developer',
+      'Hardware & PCB',
+      'Business Development Executive',
+      'Digital Marketing',
+      'Accountant',
+      'Designer',
+      'Trainee',
+      'Human Resources & Executive'
+    ];
+
+    function MasterApp() {
+      const [authenticatedUser, setAuthenticatedUser] = useState(null);
+      const [emailInput, setEmailInput] = useState('admin@petals.com');
+      const [passwordInput, setPasswordInput] = useState('admin123');
+      const [loginError, setLoginError] = useState('');
+
+      const [activeView, setActiveView] = useState('dashboard');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [toastMessage, setToastMessage] = useState('');
+
+      const [tasks, setTasks] = useState(INITIAL_TASKS);
+      const [projects, setProjects] = useState(INITIAL_PROJECTS);
+      const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
+      const [userDatabase, setUserDatabase] = useState(USER_DATABASE);
+      const [departments, setDepartments] = useState(INITIAL_DEPARTMENTS);
+
+      // Custom department entry state
+      const [isCustomDept, setIsCustomDept] = useState(false);
+      const [customDeptText, setCustomDeptText] = useState('');
+
+      // Status change prompt modal state
+      const [statusPromptModal, setStatusPromptModal] = useState(null);
+      const [promptInputText, setPromptInputText] = useState('');
+
+      // Edit task modal state
+      const [editTaskModal, setEditTaskModal] = useState(null);
+
+      // HR Edit Credentials Modal state (Admin Only)
+      const [editCredentialsModal, setEditCredentialsModal] = useState(null);
+      const [isCustomDeptEdit, setIsCustomDeptEdit] = useState(false);
+      const [customDeptTextEdit, setCustomDeptTextEdit] = useState('');
+
+      // Add & Edit Project Modal State (Admin)
+      const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+      const [editProjectModal, setEditProjectModal] = useState(null);
+      const [newPrjName, setNewPrjName] = useState('');
+      const [newPrjCode, setNewPrjCode] = useState('');
+      const [newPrjLead, setNewPrjLead] = useState(INITIAL_EMPLOYEES[0]?.name || 'Rajesh Kulkarni');
+      const [newPrjStatus, setNewPrjStatus] = useState('Active');
+
+      // Add New Employee Modal state (Admin)
+      const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
+      const [newEmpName, setNewEmpName] = useState('');
+      const [newEmpEmail, setNewEmpEmail] = useState('');
+      const [newEmpPassword, setNewEmpPassword] = useState('');
+      const [newEmpRole, setNewEmpRole] = useState('Employee');
+      const [newEmpDesignation, setNewEmpDesignation] = useState('Embedded Systems Engineer');
+      const [newEmpDepartment, setNewEmpDepartment] = useState('Embedded Systems');
+
+      // Zoho Mail Notifications State
+      const [showZohoMailModal, setShowZohoMailModal] = useState(false);
+      const [zohoMailLogs, setZohoMailLogs] = useState([
+        {
+          id: 'eml-1412',
+          subject: 'Task Updated: IoT kit - V1 LMS Q and A preparation for scratch coding [#1412]',
+          to: 'krishna@petalsautomations.com',
+          toName: 'KrishnaMoorthy',
+          from: 'Karthikeyan (mkarthikeyan@petalsautomations.com)',
+          status: 'Delivered (Zoho Mail)',
+          timestamp: '2026-08-06 03:15 PM',
+          taskName: 'IoT kit - V1 LMS Q and A preparation for scratch coding',
+          previousStatus: 'Hold',
+          currentStatus: 'HOLD',
+          updatedBy: 'Karthikeyan',
+          changes: [
+            { field: 'Due Date', previous: '2026-08-05', updated: '2026-08-08' }
+          ]
+        },
+        {
+          id: 'eml-801',
+          subject: 'Task Assigned: Implement Fieldbus CANopen Driver Protocol Stack [#TSK-801]',
+          to: 'employee@petals.com',
+          toName: 'Priya Sundaram',
+          from: 'Rajesh Kulkarni (tl@petals.com)',
+          status: 'Delivered (Zoho Mail)',
+          timestamp: '2026-08-06 01:45 PM',
+          taskName: 'Implement Fieldbus CANopen Driver Protocol Stack',
+          previousStatus: 'Created',
+          currentStatus: 'In Progress',
+          updatedBy: 'Rajesh Kulkarni',
+          changes: [
+            { field: 'Status', previous: 'Pending', updated: 'In Progress' },
+            { field: 'Due Date', previous: '2026-08-01', updated: '2026-08-08' }
+          ]
+        }
+      ]);
+      const [selectedZohoLog, setSelectedZohoLog] = useState(null);
+
+      const triggerZohoMail = (recipientName, recipientEmail, taskName, taskId, previousStatus, currentStatus, updatedBy, changesMade) => {
+        const newMailObj = {
+          id: `eml-${Date.now()}`,
+          subject: `Task Updated: ${taskName} [#${taskId}]`,
+          to: recipientEmail || 'employee@petals.com',
+          toName: recipientName || 'Team Member',
+          from: `${authenticatedUser?.name || 'Manager'} (${authenticatedUser?.email || 'admin@petals.com'})`,
+          status: 'Delivered (Zoho Mail SMTP)',
+          timestamp: new Date().toLocaleString(),
+          taskName: taskName,
+          previousStatus: previousStatus || 'Pending',
+          currentStatus: currentStatus || 'In Progress',
+          updatedBy: updatedBy || authenticatedUser?.name || 'System',
+          changes: changesMade || [
+            { field: 'Status', previous: previousStatus || 'Pending', updated: currentStatus || 'In Progress' }
+          ]
+        };
+
+        setZohoMailLogs(prev => [newMailObj, ...prev]);
+        showToast(`📧 Zoho Mail Sent to ${recipientEmail || 'employee'}: Task #${taskId} Updated`);
+      };
+
+      // TL Assign Task State
+      const [assignEmp, setAssignEmp] = useState(INITIAL_EMPLOYEES[0].name);
+      const [assignPrj, setAssignPrj] = useState(INITIAL_PROJECTS[0].name);
+      const [assignTitle, setAssignTitle] = useState('');
+      const [assignDesc, setAssignDesc] = useState('');
+      const [assignCategory, setAssignCategory] = useState('Planned Work');
+      const [assignLevel, setAssignLevel] = useState('High');
+      const [assignType, setAssignType] = useState('Project');
+      const [assignPriority, setAssignPriority] = useState('High');
+      const [assignStartDate, setAssignStartDate] = useState('2026-08-01');
+      const [assignEndDate, setAssignEndDate] = useState('2026-08-15');
+      const [assignHours, setAssignHours] = useState(16);
+
+      // Live Stopwatch & Work Time Tracker State
+      const [nowMs, setNowMs] = useState(Date.now());
+
+      useEffect(() => {
+        const timerId = setInterval(() => {
+          setNowMs(Date.now());
+        }, 1000);
+        return () => clearInterval(timerId);
+      }, []);
+
+      const formatDuration = (totalSec) => {
+        if (!totalSec || totalSec <= 0) return '00m 00s';
+        const hrs = Math.floor(totalSec / 3600);
+        const mins = Math.floor((totalSec % 3600) / 60);
+        const secs = Math.floor(totalSec % 60);
+        if (hrs > 0) {
+          return `${hrs}h ${mins < 10 ? '0' + mins : mins}m ${secs < 10 ? '0' + secs : secs}s`;
+        }
+        return `${mins}m ${secs < 10 ? '0' + secs : secs}s`;
+      };
+
+      const getTaskDurationSec = (t) => {
+        let base = t.elapsedSeconds || 0;
+        if (t.isTimerRunning && t.timerStartedAt) {
+          const active = Math.floor((nowMs - t.timerStartedAt) / 1000);
+          return base + (active > 0 ? active : 0);
+        }
+        return base;
+      };
+
+      const handleStartTaskTimer = (taskId) => {
+        setTasks(tasks.map(t => {
+          if (t.id === taskId) {
+            return {
+              ...t,
+              status: 'In Progress',
+              isTimerRunning: true,
+              timerStartedAt: Date.now()
+            };
+          }
+          return t;
+        }));
+
+        const targetTask = tasks.find(t => t.id === taskId);
+        if (targetTask) {
+          triggerZohoMail(
+            targetTask.assignee,
+            targetTask.assigneeEmail || 'employee@petals.com',
+            targetTask.title,
+            targetTask.id,
+            targetTask.status,
+            'In Progress',
+            authenticatedUser ? authenticatedUser.name : 'System User',
+            [{ field: 'Status & Timer', previous: targetTask.status, updated: '▶️ In Progress (Timer Active)' }]
+          );
+        }
+
+        showToast(`▶️ Task ${taskId} Started! Stopwatch live counter active.`);
+      };
+
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(''), 3500);
+      };
+
+      const handleLoginSubmit = (e) => {
+        e.preventDefault();
+        setLoginError('');
+        const foundUser = userDatabase.find(
+          u => u.email.toLowerCase() === emailInput.trim().toLowerCase() && u.password === passwordInput.trim()
+        );
+        if (foundUser) {
+          setAuthenticatedUser(foundUser);
+          setActiveView('dashboard');
+          showToast(`Welcome back, ${foundUser.name}! (${foundUser.role})`);
+        } else {
+          setLoginError('Invalid credentials. Select an account from the table below.');
+        }
+      };
+
+      const handleCreateEmployeeSubmit = (e) => {
+        e.preventDefault();
+        if (!newEmpName.trim() || !newEmpEmail.trim() || !newEmpPassword.trim()) {
+          alert('Please enter Name, Email, and Password');
+          return;
+        }
+
+        const finalDept = (isCustomDept && customDeptText.trim()) ? customDeptText.trim() : newEmpDepartment;
+
+        if (isCustomDept && customDeptText.trim() && !departments.includes(customDeptText.trim())) {
+          setDepartments([...departments, customDeptText.trim()]);
+        }
+
+        const newEmpId = `emp-${Date.now()}`;
+        const newUserId = `usr-${Date.now()}`;
+
+        const newEmpObj = {
+          id: newEmpId,
+          name: newEmpName.trim(),
+          email: newEmpEmail.trim(),
+          role: newEmpRole,
+          designation: newEmpDesignation.trim(),
+          dept: finalDept,
+          department: finalDept,
+          status: 'Active',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+        };
+
+        const newUserObj = {
+          id: newUserId,
+          name: newEmpName.trim(),
+          email: newEmpEmail.trim().toLowerCase(),
+          password: newEmpPassword.trim(),
+          role: newEmpRole,
+          designation: newEmpDesignation.trim(),
+          department: finalDept,
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+        };
+
+        setEmployees([...employees, newEmpObj]);
+        setUserDatabase([...userDatabase, newUserObj]);
+        setShowAddEmployeeModal(false);
+        setNewEmpName('');
+        setNewEmpEmail('');
+        setNewEmpPassword('');
+        setIsCustomDept(false);
+        setCustomDeptText('');
+        showToast(`New employee ${newEmpName.trim()} created in ${finalDept}! Credentials active.`);
+      };
+
+      const handleCreateProjectSubmit = (e) => {
+        e.preventDefault();
+        if (!newPrjName.trim() || !newPrjCode.trim()) {
+          alert('Please fill in Project Name and Project Code');
+          return;
+        }
+
+        const newPrjObj = {
+          id: `prj-${Date.now()}`,
+          name: newPrjName.trim(),
+          code: newPrjCode.trim().toUpperCase(),
+          lead: newPrjLead,
+          status: newPrjStatus
+        };
+
+        setProjects([...projects, newPrjObj]);
+        setShowAddProjectModal(false);
+        setNewPrjName('');
+        setNewPrjCode('');
+        showToast(`Project ${newPrjObj.code} added successfully!`);
+      };
+
+      const handleEditProjectSubmit = (e) => {
+        e.preventDefault();
+        if (!editProjectModal.name.trim() || !editProjectModal.code.trim()) {
+          alert('Please fill in Project Name and Code');
+          return;
+        }
+
+        setProjects(projects.map(p => p.id === editProjectModal.id ? {
+          ...p,
+          name: editProjectModal.name.trim(),
+          code: editProjectModal.code.trim().toUpperCase(),
+          lead: editProjectModal.lead,
+          status: editProjectModal.status
+        } : p));
+
+        setEditProjectModal(null);
+        showToast(`Project ${editProjectModal.code} updated successfully.`);
+      };
+
+      const handleDeleteProject = (prjId, prjCode) => {
+        if (window.confirm(`Are you sure you want to delete Project ${prjCode}?`)) {
+          setProjects(projects.filter(p => p.id !== prjId));
+          setEditProjectModal(null);
+          showToast(`Project ${prjCode} deleted.`);
+        }
+      };
+
+      const fillCredentials = (email, pass) => {
+        setEmailInput(email);
+        setPasswordInput(pass);
+        setLoginError('');
+      };
+
+      const handleLogout = () => {
+        setAuthenticatedUser(null);
+        showToast('Logged out successfully.');
+      };
+
+      // Intercept status dropdown change
+      const handleInitiateStatusChange = (taskId, targetStatus) => {
+        const taskObj = tasks.find(t => t.id === taskId);
+        if (!taskObj) return;
+
+        if (targetStatus === 'On Hold') {
+          setStatusPromptModal({
+            taskId: taskId,
+            taskTitle: taskObj.title,
+            targetStatus: 'On Hold',
+            titleText: 'Reason for placing Task On Hold',
+            placeholderText: 'Please enter why this task is being put on hold (e.g. waiting for hardware IC shipment, waiting for client response)...'
+          });
+          setPromptInputText('');
+        } else if (targetStatus === 'Completed') {
+          setStatusPromptModal({
+            taskId: taskId,
+            taskTitle: taskObj.title,
+            targetStatus: 'Completed',
+            titleText: 'Completion Summary & Deliverables Done',
+            placeholderText: 'Please summarize what work was completed and verified (e.g. CANopen ISR compiled and tested on bench with 0 errors)...'
+          });
+          setPromptInputText('');
+        } else {
+          applyTaskStatusUpdate(taskId, targetStatus, null);
+        }
+      };
+
+      const applyTaskStatusUpdate = (taskId, targetStatus, reasonOrSummary) => {
+        const targetTask = tasks.find(t => t.id === taskId);
+        const prevStatus = targetTask ? targetTask.status : 'Pending';
+
+        const updated = tasks.map(t => {
+          if (t.id === taskId) {
+            const updatedRemarks = [...(t.remarks || [])];
+            if (reasonOrSummary && reasonOrSummary.trim()) {
+              const prefix = targetStatus === 'On Hold' ? '[ON HOLD REASON]' : '[COMPLETED SUMMARY]';
+              updatedRemarks.push({
+                id: `rem-${Date.now()}`,
+                author: authenticatedUser ? authenticatedUser.name : 'System User',
+                text: `${prefix}: ${reasonOrSummary.trim()}`,
+                timestamp: new Date().toLocaleString()
+              });
+            }
+
+            const totalSec = getTaskDurationSec(t);
+            const isRunning = targetStatus === 'In Progress';
+
+            return {
+              ...t,
+              status: targetStatus,
+              remarks: updatedRemarks,
+              isTimerRunning: isRunning,
+              timerStartedAt: isRunning ? Date.now() : null,
+              elapsedSeconds: totalSec
+            };
+          }
+          return t;
+        });
+
+        setTasks(updated);
+        setStatusPromptModal(null);
+        setPromptInputText('');
+
+        if (targetTask) {
+          triggerZohoMail(
+            targetTask.assignee,
+            targetTask.assigneeEmail || 'employee@petals.com',
+            targetTask.title,
+            targetTask.id,
+            prevStatus,
+            targetStatus,
+            authenticatedUser ? authenticatedUser.name : 'System User',
+            [
+              { field: 'Status', previous: prevStatus, updated: targetStatus },
+              ...(reasonOrSummary ? [{ field: targetStatus === 'On Hold' ? 'Hold Reason' : 'Summary', previous: 'None', updated: reasonOrSummary.trim() }] : [])
+            ]
+          );
+        }
+
+        showToast(`Task ${taskId} status updated to "${targetStatus}" & note saved!`);
+      };
+
+      const handleDeleteTask = (taskId) => {
+        if (confirm(`Are you sure you want to delete task ${taskId}?`)) {
+          setTasks(tasks.filter(t => t.id !== taskId));
+          showToast(`Task ${taskId} deleted successfully.`);
+        }
+      };
+
+      const handleAssignTaskSubmit = (e) => {
+        e.preventDefault();
+        if (!assignTitle.trim()) return alert('Please enter task name');
+        const assignedObj = employees.find(e => e.name === assignEmp) || employees[0];
+
+        const newTask = {
+          id: `TSK-${Math.floor(810 + Math.random() * 90)}`,
+          title: assignTitle.trim(),
+          project: assignPrj,
+          category: assignCategory,
+          taskLevel: assignLevel,
+          taskType: assignType,
+          priority: assignPriority,
+          status: 'In Progress',
+          assignee: assignEmp,
+          assigneeEmail: assignedObj.email,
+          teamLeader: authenticatedUser ? authenticatedUser.name : 'Rajesh Kulkarni',
+          startDate: assignStartDate,
+          dueDate: assignEndDate,
+          est: Number(assignHours),
+          description: assignDesc || 'Engineering task assigned by Team Leader.',
+          remarks: []
+        };
+
+        setTasks([newTask, ...tasks]);
+        setAssignTitle('');
+        setAssignDesc('');
+        setActiveView('list-view');
+
+        triggerZohoMail(
+          assignEmp,
+          assignedObj.email,
+          newTask.title,
+          newTask.id,
+          'Unassigned',
+          'In Progress',
+          authenticatedUser ? authenticatedUser.name : 'Team Leader',
+          [
+            { field: 'Assignee', previous: 'None', updated: assignEmp },
+            { field: 'Status', previous: 'Created', updated: 'In Progress' },
+            { field: 'Due Date', previous: 'None', updated: assignEndDate }
+          ]
+        );
+
+        showToast(`Task ${newTask.id} assigned to ${assignEmp}! Zoho Mail dispatched.`);
+      };
+
+      const role = authenticatedUser ? authenticatedUser.role : 'Employee';
+      const roleTasks = role === 'Employee'
+        ? tasks.filter(t => t.assignee === authenticatedUser?.name || t.assigneeEmail === authenticatedUser?.email)
+        : tasks;
+
+      const statusPriority = {
+        'In Progress': 1,
+        'Pending': 1,
+        'Under Review': 1,
+        'On Hold': 2,
+        'Completed': 3
+      };
+
+      const filteredTasks = roleTasks.filter(t => 
+        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.project.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.assignee.toLowerCase().includes(searchQuery.toLowerCase())
+      ).sort((a, b) => (statusPriority[a.status] || 99) - (statusPriority[b.status] || 99));
+
+      // ==========================================
+      // MUTMIZ SOFT SAAS SPLIT-SCREEN LOGIN PAGE
+      // ==========================================
+      if (!authenticatedUser) {
+        return (
+          <div className="min-h-screen w-full bg-[#FAFBFF] text-[#202124] flex flex-col lg:flex-row overflow-hidden font-sans">
+            
+            {/* LEFT SIDE: Soft Lavender Hero Panel */}
+            <div className="lg:w-1/2 relative bg-gradient-to-br from-[#F3F1FF] via-[#ECE8FF] to-[#E5E0FF] p-8 lg:p-16 flex flex-col justify-between overflow-hidden">
+              <div className="absolute top-10 left-10 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-10 right-10 w-96 h-96 bg-indigo-300/30 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6D5EF8] to-[#8B7BFF] flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-500/30">
+                  🌸
+                </div>
+                <div>
+                  <h2 className="text-xl font-extrabold tracking-tight text-[#202124]">Petals Automation</h2>
+                  <span className="text-[11px] font-bold text-[#6D5EF8] uppercase tracking-widest block">Soft SaaS Platform OS</span>
+                </div>
+              </div>
+
+              <div className="relative z-10 space-y-8 my-auto py-12">
+                <div className="space-y-4 max-w-xl">
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-purple-200 text-xs font-extrabold text-[#6D5EF8] shadow-sm">
+                    ✨ Enterprise Task Infrastructure
+                  </span>
+                  <h1 className="hero-title text-[#202124] tracking-tight leading-tight">
+                    Luxurious Workflows, Built for Modern SaaS.
+                  </h1>
+                  <p className="body-text text-slate-600 font-medium leading-relaxed">
+                    Track firmware drivers, PCB thermal simulations, and SCADA industrial automation tasks with full audit visibility.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 max-w-md">
+                  <div className="soft-card p-5 space-y-1">
+                    <span className="text-3xl font-extrabold text-[#202124]">42 Tasks</span>
+                    <p className="small-text text-slate-500 font-semibold">Completed this sprint</p>
+                  </div>
+                  <div className="soft-card p-5 space-y-1">
+                    <span className="text-3xl font-extrabold text-[#6D5EF8]">96% Velocity</span>
+                    <p className="small-text text-slate-500 font-semibold">On-time sprint score</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative z-10 small-text text-slate-500 font-medium">
+                © 2026 Petals Automation. All rights reserved.
+              </div>
+            </div>
+
+            {/* RIGHT SIDE: Pure White Floating Card Login Form */}
+            <div className="lg:w-1/2 p-6 lg:p-16 flex items-center justify-center bg-[#FAFBFF]">
+              <div className="w-full max-w-md space-y-6">
+                
+                <div className="soft-card space-y-6">
+                  <div className="space-y-1 text-left">
+                    <h3 className="section-title text-[#202124]">
+                      Sign in to your account
+                    </h3>
+                    <p className="small-text text-slate-500 font-medium">
+                      Enter your credentials or click an account below to auto-fill
+                    </p>
+                  </div>
+
+                  {loginError && (
+                    <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 small-text font-bold">
+                      {loginError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleLoginSubmit} className="space-y-4 small-text">
+                    <div className="space-y-1.5">
+                      <label className="font-bold text-slate-700">Work Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={emailInput}
+                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder="admin@petals.com"
+                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#6D5EF8] focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="font-bold text-slate-700">Password</label>
+                      <input
+                        type="password"
+                        required
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#6D5EF8] focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 rounded-xl btn-purple-gradient text-sm shadow-purple-btn transition-all active:scale-[0.99] flex items-center justify-center gap-2"
+                    >
+                      <span>Sign In to Dashboard</span>
+                      <span className="text-base">→</span>
+                    </button>
+                  </form>
+
+                  {/* 1-Click Credential Reference Table */}
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      <span>Select Account:</span>
+                      <span className="text-[#6D5EF8]">Click to fill</span>
+                    </div>
+
+                    <div className="space-y-2 small-text max-h-56 overflow-y-auto pr-1">
+                      {userDatabase.map(usr => (
+                        <div 
+                          key={usr.id} 
+                          onClick={() => fillCredentials(usr.email, usr.password)} 
+                          className="p-3 rounded-xl bg-purple-50/50 border border-purple-100 hover:border-[#6D5EF8] cursor-pointer flex items-center justify-between group transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                              usr.role === 'Admin' ? 'bg-purple-100 text-purple-700' :
+                              usr.role === 'Team Leader' ? 'bg-blue-100 text-blue-700' :
+                              'bg-emerald-100 text-emerald-700'
+                            }`}>
+                              {usr.role}
+                            </span>
+                            <div>
+                              <p className="font-bold text-slate-900 group-hover:text-[#6D5EF8]">{usr.email}</p>
+                              <p className="text-[10px] text-slate-500">{usr.name} ({usr.designation})</p>
+                            </div>
+                          </div>
+                          <span className="font-mono text-[11px] font-semibold text-slate-600">pass: {usr.password}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        );
+      }
+
+      // ==========================================
+      // MAIN MUTMIZ SOFT SAAS WORKSPACE
+      // ==========================================
+      return (
+        <div className="flex h-screen overflow-hidden bg-[#FAFBFF]">
+          
+          {/* WHITE FLOATING ROUNDED SIDEBAR */}
+          <aside className="w-[280px] h-[calc(100vh-32px)] m-4 bg-white border border-slate-200/80 rounded-[22px] shadow-soft-purple flex flex-col justify-between z-40">
+            <div>
+              {/* Brand Header */}
+              <div className="flex items-center gap-3 p-5 border-b border-slate-100 h-[72px]">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6D5EF8] to-[#8B7BFF] flex items-center justify-center text-white font-bold text-xl shadow-md shadow-purple-500/30">
+                  🌸
+                </div>
+                <div>
+                  <h1 className="font-extrabold text-base tracking-tight text-slate-900">PETALS</h1>
+                  <span className="text-[10px] font-extrabold text-[#6D5EF8] uppercase tracking-widest block">{role} Portal</span>
+                </div>
+              </div>
+
+              {/* Navigation Menu */}
+              <nav className="p-3 space-y-1.5 text-xs font-semibold">
+                <button
+                  onClick={() => setActiveView('dashboard')}
+                  className={`w-full text-left px-4 py-3 transition-all ${
+                    activeView === 'dashboard' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                  }`}
+                >
+                  <span>Dashboard</span>
+                </button>
+
+                {role === 'Team Leader' && (
+                  <button
+                    onClick={() => setActiveView('assign-task')}
+                    className={`w-full text-left px-4 py-3 transition-all ${
+                      activeView === 'assign-task' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                    }`}
+                  >
+                    <span>Assign Task Page</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setActiveView('list-view')}
+                  className={`w-full text-left px-4 py-3 flex items-center justify-between transition-all ${
+                    activeView === 'list-view' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                  }`}
+                >
+                  <span>{role === 'Employee' ? 'My Tasks (List View)' : 'Task Directory'}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeView === 'list-view' ? 'bg-white/25 text-white' : 'bg-purple-100 text-[#6D5EF8]'}`}>
+                    {roleTasks.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveView('calendar')}
+                  className={`w-full text-left px-4 py-3 transition-all ${
+                    activeView === 'calendar' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                  }`}
+                >
+                  <span>Task Calendar</span>
+                </button>
+
+                {role === 'Admin' && (
+                  <>
+                    <button
+                      onClick={() => setActiveView('projects')}
+                      className={`w-full text-left px-4 py-3 transition-all ${
+                        activeView === 'projects' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                      }`}
+                    >
+                      <span>Project Management</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveView('employees')}
+                      className={`w-full text-left px-4 py-3 transition-all ${
+                        activeView === 'employees' ? 'sidebar-active' : 'text-slate-600 hover:bg-[#F4F2FF] hover:text-[#6D5EF8] rounded-xl'
+                      }`}
+                    >
+                      <span>Employee Management</span>
+                    </button>
+                  </>
+                )}
+              </nav>
+            </div>
+
+            {/* Profile Footer */}
+            <div className="p-3 m-3 rounded-xl bg-purple-50/60 border border-purple-100 space-y-2">
+              <div className="flex items-center gap-3">
+                <img src={authenticatedUser.avatar} alt={authenticatedUser.name} className="w-8 h-8 rounded-full object-cover border border-purple-200" />
+                <div className="truncate">
+                  <p className="text-xs font-bold text-slate-900 truncate">{authenticatedUser.name}</p>
+                  <p className="text-[10px] text-[#6D5EF8] font-bold">{authenticatedUser.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full py-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-xs font-bold text-center transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </aside>
+
+          {/* Main Workspace */}
+          <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+            
+            {/* Sticky Header */}
+            <header className="bg-white sticky top-0 z-30 h-[72px] px-6 border-b border-slate-200/80 flex items-center justify-between gap-4">
+              <div className="relative flex-1 max-w-md">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tasks, projects, employees..."
+                  className="w-full pl-4 pr-4 py-2.5 text-xs rounded-xl bg-[#FAFBFF] border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8] focus:bg-white font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-3 text-xs">
+                <span className="font-bold px-3.5 py-1.5 rounded-full bg-purple-50 text-[#6D5EF8] border border-purple-200">
+                  Role: {authenticatedUser.role}
+                </span>
+
+                <button
+                  onClick={() => {
+                    setSelectedZohoLog(zohoMailLogs[0] || null);
+                    setShowZohoMailModal(true);
+                  }}
+                  className="px-3.5 py-2.5 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                  title="View Dispatched Zoho Mail Notifications"
+                >
+                  <span>📫 Zoho Mail</span>
+                  <span className="px-1.5 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-extrabold">
+                    {zohoMailLogs.length}
+                  </span>
+                </button>
+
+                {role === 'Team Leader' && (
+                  <button
+                    onClick={() => setActiveView('assign-task')}
+                    className="px-4 py-2.5 btn-purple-gradient text-xs shadow-purple-btn font-bold rounded-xl"
+                  >
+                    + Assign Task
+                  </button>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-red-600 font-bold hover:bg-red-50"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </header>
+
+            {/* Content Area */}
+            <main className="flex-1 overflow-y-auto p-8 space-y-6 max-w-[1440px] mx-auto w-full">
+              
+              {/* DASHBOARD VIEW */}
+              {activeView === 'dashboard' && (
+                <div className="space-y-6">
+                  
+                  {/* Lavender Gradient Banner */}
+                  <div className="relative overflow-hidden rounded-[22px] bg-gradient-to-r from-[#F3F1FF] via-[#ECE8FF] to-[#E5E0FF] p-8 border border-purple-100 shadow-soft-purple">
+                    <div className="relative z-10 space-y-2">
+                      <span className="px-3.5 py-1 rounded-full bg-white border border-purple-200 text-xs font-extrabold text-[#6D5EF8] shadow-sm">
+                        🌸 {role} Dashboard Portal
+                      </span>
+                      <h2 className="heading-title text-slate-900 tracking-tight">
+                        Welcome back, {authenticatedUser.name}! 🌸
+                      </h2>
+                      <p className="body-text text-slate-600 max-w-xl font-medium">
+                        {role === 'Admin' && `Overview of ${employees.length} active engineers across ${projects.length} automation projects.`}
+                        {role === 'Team Leader' && `Tracking ${tasks.filter(t=>t.status==='In Progress').length} tasks in progress across your sprint teams.`}
+                        {role === 'Employee' && `You have ${roleTasks.filter(t=>t.status==='In Progress').length} active tasks scheduled today.`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ADMIN KPI CARDS */}
+                  {role === 'Admin' && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-[#202124]">{employees.length}</span>
+                        <p className="small-text text-slate-500 font-semibold">Total Employees</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-[#202124]">{projects.length}</span>
+                        <p className="small-text text-slate-500 font-semibold">Total Projects</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-[#6D5EF8]">{tasks.length}</span>
+                        <p className="small-text text-slate-500 font-semibold">Total Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-emerald-600">{tasks.filter(t=>t.status==='Completed').length}</span>
+                        <p className="small-text text-emerald-600 font-bold">Completed</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-blue-600">{tasks.filter(t=>t.status==='In Progress').length}</span>
+                        <p className="small-text text-blue-600 font-bold">In Progress</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-1">
+                        <span className="text-3xl font-extrabold text-amber-600">{tasks.filter(t=>t.status==='Pending').length}</span>
+                        <p className="small-text text-amber-600 font-bold">Pending</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TL KPI CARDS */}
+                  {role === 'Team Leader' && (
+                    <div className="grid grid-cols-4 gap-5">
+                      <div className="soft-card soft-card-hover space-y-2">
+                        <span className="text-4xl font-extrabold text-[#202124]">{tasks.length}</span>
+                        <p className="small-text font-bold text-slate-600">Assigned Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-2">
+                        <span className="text-4xl font-extrabold text-emerald-600">{tasks.filter(t=>t.status==='Completed').length}</span>
+                        <p className="small-text font-bold text-emerald-600">Completed Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-2">
+                        <span className="text-4xl font-extrabold text-amber-600">{tasks.filter(t=>t.status==='Pending').length}</span>
+                        <p className="small-text font-bold text-amber-600">Pending Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover space-y-2">
+                        <span className="text-4xl font-extrabold text-[#202124]">{employees.length}</span>
+                        <p className="small-text font-bold text-[#6D5EF8]">Employees Under TL</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* EMPLOYEE KPI CARDS */}
+                  {role === 'Employee' && (
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="soft-card soft-card-hover border-l-4 border-l-[#6D5EF8] space-y-2">
+                        <span className="text-4xl font-extrabold text-[#202124]">{roleTasks.filter(t=>t.status==='In Progress').length}</span>
+                        <p className="small-text font-bold text-[#6D5EF8]">Today's Active Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover border-l-4 border-l-amber-500 space-y-2">
+                        <span className="text-4xl font-extrabold text-[#202124]">{roleTasks.filter(t=>t.status==='Pending').length}</span>
+                        <p className="small-text font-bold text-amber-600">Upcoming Tasks</p>
+                      </div>
+                      <div className="soft-card soft-card-hover border-l-4 border-l-emerald-500 space-y-2">
+                        <span className="text-4xl font-extrabold text-emerald-600">{roleTasks.filter(t=>t.status==='Completed').length}</span>
+                        <p className="small-text font-bold text-emerald-600">Completed Tasks</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Directory */}
+                  <div className="soft-card space-y-4">
+                    <h3 className="card-title text-[#202124]">Active Tasks Directory Overview</h3>
+                    <div className="divide-y divide-slate-100">
+                      {[...roleTasks].sort((a, b) => (statusPriority[a.status] || 99) - (statusPriority[b.status] || 99)).map(t => (
+                        <div key={t.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-mono font-extrabold text-[#6D5EF8]">{t.id}</span>
+                              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-purple-100 text-purple-700">
+                                {t.category || 'Planned Work'}
+                              </span>
+                            </div>
+                            <h4 className="body-text font-bold text-[#202124]">{t.title}</h4>
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                              <span className="text-slate-500 font-medium">📁 {t.project}</span>
+                              <span className="px-2.5 py-0.5 rounded-lg bg-purple-50 text-[#6D5EF8] font-extrabold border border-purple-100 flex items-center gap-1">
+                                👤 Assignee: <strong className="text-[#6D5EF8]">{t.assignee || 'Unassigned'}</strong>
+                              </span>
+                              {t.teamLeader && (
+                                <span className="text-slate-500 font-semibold">
+                                  👑 TL: <span className="text-slate-700">{t.teamLeader}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`small-text px-3.5 py-1 rounded-full font-extrabold self-start sm:self-center ${
+                            t.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                            t.status === 'In Progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {t.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ASSIGN TASK PAGE (TL ONLY) */}
+              {activeView === 'assign-task' && (
+                <form onSubmit={handleAssignTaskSubmit} className="soft-card space-y-6 max-w-3xl">
+                  <h3 className="section-title text-[#202124]">Assign Task Page (Team Leader)</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4 small-text">
+                    <div>
+                      <label className="font-bold text-slate-700">Employee Name (Dropdown)</label>
+                      <select
+                        value={assignEmp}
+                        onChange={(e) => setAssignEmp(e.target.value)}
+                        className="w-full mt-1 p-3 rounded-xl bg-white border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-[#6D5EF8]"
+                      >
+                        {employees.map(e => (
+                          <option key={e.id} value={e.name}>{e.name} ({e.designation})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700">Project Name (Dropdown)</label>
+                      <select
+                        value={assignPrj}
+                        onChange={(e) => setAssignPrj(e.target.value)}
+                        className="w-full mt-1 p-3 rounded-xl bg-white border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-[#6D5EF8]"
+                      >
+                        {projects.map(p => (
+                          <option key={p.id} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="small-text">
+                    <label className="font-bold text-slate-700">Task Name (Textbox)</label>
+                    <input
+                      type="text"
+                      required
+                      value={assignTitle}
+                      onChange={(e) => setAssignTitle(e.target.value)}
+                      placeholder="e.g. Implement CANopen Protocol Interrupt Handler"
+                      className="w-full mt-1 p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="small-text">
+                    <label className="font-bold text-slate-700">Task Description (Textarea)</label>
+                    <textarea
+                      rows="3"
+                      value={assignDesc}
+                      onChange={(e) => setAssignDesc(e.target.value)}
+                      placeholder="Engineering scope and acceptance criteria..."
+                      className="w-full mt-1 p-3 rounded-xl bg-white border border-slate-200 text-slate-900 resize-none font-medium focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3 small-text">
+                    <div>
+                      <label className="font-bold text-slate-700">Task Category</label>
+                      <select value={assignCategory} onChange={e=>setAssignCategory(e.target.value)} className="w-full mt-1 p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-slate-900">
+                        <option value="Planned Work">Planned Work</option>
+                        <option value="Extra Work">Extra Work</option>
+                        <option value="Bug Fix">Bug Fix</option>
+                        <option value="Support">Support</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700">Task Level</label>
+                      <select value={assignLevel} onChange={e=>setAssignLevel(e.target.value)} className="w-full mt-1 p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-slate-900">
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700">Task Type</label>
+                      <select value={assignType} onChange={e=>setAssignType(e.target.value)} className="w-full mt-1 p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-slate-900">
+                        <option value="Project">Project</option>
+                        <option value="Training">Training</option>
+                        <option value="Support">Support</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700">Priority</label>
+                      <select value={assignPriority} onChange={e=>setAssignPriority(e.target.value)} className="w-full mt-1 p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-slate-900">
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* START DATE & EXPECTED END DATE SCHEDULE (TL CONTROLS) */}
+                  <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-100 space-y-3">
+                    <span className="text-xs font-extrabold text-[#6D5EF8] uppercase tracking-wider block">
+                      📅 Task Schedule & Timeline (Start & Expected End Date)
+                    </span>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 small-text">
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">🚀 Task Start Date</label>
+                        <input
+                          type="date"
+                          required
+                          value={assignStartDate}
+                          onChange={(e) => setAssignStartDate(e.target.value)}
+                          className="w-full p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-blue-700 focus:ring-2 focus:ring-[#6D5EF8]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">🏁 Expected End Date (Due)</label>
+                        <input
+                          type="date"
+                          required
+                          value={assignEndDate}
+                          onChange={(e) => setAssignEndDate(e.target.value)}
+                          className="w-full p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-emerald-700 focus:ring-2 focus:ring-[#6D5EF8]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-1">⏱️ Est. Work Hours</label>
+                        <input
+                          type="number"
+                          required
+                          min="1"
+                          max="500"
+                          value={assignHours}
+                          onChange={(e) => setAssignHours(e.target.value)}
+                          className="w-full p-2.5 rounded-xl bg-white border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-[#6D5EF8]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" className="px-6 py-3.5 btn-purple-gradient small-text font-bold rounded-xl shadow-purple-btn">
+                    🚀 Assign Task & Schedule Dates
+                  </button>
+                </form>
+              )}
+
+              {/* TASK LIST VIEW DATAGRID */}
+              {activeView === 'list-view' && (
+                <div className="soft-card space-y-4">
+                  <h3 className="section-title text-[#202124]">{role === 'Employee' ? 'My Assigned Tasks (List View)' : 'Task Directory & Monitoring'}</h3>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left small-text text-slate-700">
+                      <thead className="bg-purple-50/60 uppercase font-extrabold text-[#6D5EF8] border-b border-purple-100">
+                        <tr>
+                          <th className="p-3.5">Task ID</th>
+                          <th className="p-3.5">Task Name</th>
+                          <th className="p-3.5">Project</th>
+                          <th className="p-3.5">Category</th>
+                          <th className="p-3.5">Status Dropdown</th>
+                          <th className="p-3.5">Live Work Timer & Controls</th>
+                          <th className="p-3.5">Start & Expected End Date</th>
+                          <th className="p-3.5">Assignee</th>
+                          <th className="p-3.5">Saved Remarks / Saved History</th>
+                          {(role === 'Team Leader' || role === 'Admin') && (
+                            <th className="p-3.5 text-right">Actions</th>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filteredTasks.map((t, idx) => (
+                          <tr key={t.id} className={idx % 2 === 0 ? 'bg-white hover:bg-purple-50/40' : 'bg-purple-50/20 hover:bg-purple-50/40'}>
+                            <td className="p-3.5 font-mono font-extrabold text-[#6D5EF8]">{t.id}</td>
+                            <td className="p-3.5 font-bold text-slate-900">{t.title}</td>
+                            <td className="p-3.5 text-slate-500 font-medium">{t.project}</td>
+                            <td className="p-3.5 font-semibold text-slate-700">{t.category || 'Planned Work'}</td>
+
+                            {/* SOFT PASTEL STATUS BADGES */}
+                            <td className="p-3.5">
+                              <select
+                                value={t.status}
+                                onChange={(e) => handleInitiateStatusChange(t.id, e.target.value)}
+                                className={`p-2 rounded-xl text-xs font-extrabold border focus:outline-none cursor-pointer ${
+                                  t.status === 'Completed' ? 'bg-[#D1FAE5] text-[#059669] border-emerald-200' :
+                                  t.status === 'In Progress' ? 'bg-[#DBEAFE] text-[#1D4ED8] border-blue-200' :
+                                  t.status === 'On Hold' ? 'bg-[#FEF3C7] text-[#D97706] border-amber-200' :
+                                  'bg-[#EEE8FF] text-[#6D5EF8] border-purple-200'
+                                }`}
+                              >
+                                <option value="In Progress">In Progress</option>
+                                <option value="On Hold">On Hold (Prompts Reason)</option>
+                                <option value="Completed">Completed (Prompts Summary)</option>
+                                <option value="Pending">Pending</option>
+                              </select>
+                            </td>
+
+                            {/* LIVE STOPWATCH WORK TIMER & CONTROLS CELL */}
+                            <td className="p-3.5 whitespace-nowrap">
+                              {(() => {
+                                const sec = getTaskDurationSec(t);
+                                const formatted = formatDuration(sec);
+
+                                if (t.status === 'Completed') {
+                                  return (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-mono font-extrabold border border-emerald-200 shadow-2xs">
+                                      ✅ {formatted} (Total Spent)
+                                    </span>
+                                  );
+                                }
+
+                                if (t.isTimerRunning) {
+                                  return (
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-100 text-blue-800 text-xs font-mono font-extrabold border border-blue-300 shadow-2xs animate-pulse">
+                                        <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                                        ⏱️ {formatted}
+                                      </span>
+                                      <button
+                                        onClick={() => handleInitiateStatusChange(t.id, 'On Hold')}
+                                        className="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 font-extrabold text-[11px] border border-amber-300 transition-all cursor-pointer"
+                                        title="Pause & Put Task On Hold"
+                                      >
+                                        ⏸️ Hold
+                                      </button>
+                                    </div>
+                                  );
+                                }
+
+                                if (t.status === 'On Hold') {
+                                  return (
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-100 text-amber-900 text-xs font-mono font-extrabold border border-amber-300">
+                                        ⏸️ {formatted} (Paused)
+                                      </span>
+                                      <button
+                                        onClick={() => handleStartTaskTimer(t.id)}
+                                        className="px-2.5 py-1 rounded-lg btn-purple-gradient text-white font-extrabold text-[11px] shadow-2xs hover:scale-102 transition-transform cursor-pointer"
+                                        title="Resume Task Timer"
+                                      >
+                                        ▶️ Resume
+                                      </button>
+                                    </div>
+                                  );
+                                }
+
+                                // Default / Pending / Created
+                                return (
+                                  <button
+                                    onClick={() => handleStartTaskTimer(t.id)}
+                                    className="px-3.5 py-1.5 rounded-xl btn-purple-gradient text-white font-extrabold text-xs shadow-purple-btn hover:scale-105 transition-transform flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    ▶️ Start Task
+                                  </button>
+                                );
+                              })()}
+                            </td>
+
+                            {/* START DATE & EXPECTED END DATE CELL */}
+                            <td className="p-3.5 text-xs font-semibold whitespace-nowrap">
+                              <div className="space-y-0.5">
+                                <p className="text-blue-700 font-extrabold flex items-center gap-1">
+                                  🚀 Start: <span className="font-mono">{t.startDate || '2026-08-01'}</span>
+                                </p>
+                                <p className="text-emerald-700 font-extrabold flex items-center gap-1">
+                                  🏁 Due: <span className="font-mono">{t.dueDate || '2026-08-15'}</span>
+                                </p>
+                              </div>
+                            </td>
+
+                            <td className="p-3.5 font-bold text-slate-900">{t.assignee}</td>
+
+                            <td className="p-3.5 max-w-xs">
+                              {t.remarks && t.remarks.length > 0 ? (
+                                <div className="space-y-1">
+                                  {t.remarks.slice(-2).map(rem => (
+                                    <div key={rem.id} className="p-2 rounded-xl bg-purple-50/60 border border-purple-100 text-[10px]">
+                                      <p className="font-semibold text-slate-800 line-clamp-2">{rem.text}</p>
+                                      <span className="text-[#6D5EF8] font-mono">{rem.timestamp}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-[10px] text-slate-400 italic">No notes saved</span>
+                              )}
+                            </td>
+
+                            {(role === 'Team Leader' || role === 'Admin') && (
+                              <td className="p-3.5 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditTaskModal({ ...t });
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold text-xs border border-blue-200 transition-colors shadow-xs"
+                                    title="Edit Task Details (HR / Team Leader)"
+                                  >
+                                    ✏️ Edit Task
+                                  </button>
+
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteTask(t.id);
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs border border-red-200 transition-colors shadow-xs"
+                                    title="Delete Task"
+                                  >
+                                    🗑️ Delete Task
+                                  </button>
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* CALENDAR VIEW */}
+              {activeView === 'calendar' && (
+                <div className="soft-card space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="section-title text-slate-900">Task Schedule Calendar (August 2026)</h3>
+                      <p className="small-text text-slate-500 font-medium">
+                        Interactive timeline showing Start Dates ▶️ and End Dates 🏁 for all engineering tasks.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs font-bold">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 border border-blue-200">▶️ Start Date</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200">🏁 End / Due Date</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-2 text-center small-text">
+                    {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+                      <div key={d} className="font-bold text-[#6D5EF8] p-2 bg-purple-50 rounded-xl">{d}</div>
+                    ))}
+
+                    {Array.from({ length: 31 }).map((_, i) => {
+                      const dayNum = i + 1;
+                      const currentDayStr = `2026-08-${dayNum < 10 ? '0' + dayNum : dayNum}`;
+
+                      const activeDayTasks = roleTasks.filter(t => {
+                        const sDate = t.startDate || '2026-08-01';
+                        const eDate = t.dueDate || '2026-08-15';
+                        return currentDayStr >= sDate && currentDayStr <= eDate;
+                      });
+
+                      return (
+                        <div key={i} className="p-2.5 rounded-2xl bg-purple-50/40 border border-purple-100 min-h-[95px] text-left flex flex-col justify-between hover:border-[#6D5EF8] transition-colors">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-extrabold text-slate-600">{dayNum}</span>
+                            {activeDayTasks.length > 0 && (
+                              <span className="text-[10px] font-extrabold text-[#6D5EF8] bg-purple-100 px-1.5 py-0.5 rounded-full">
+                                {activeDayTasks.length} task{activeDayTasks.length > 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="space-y-1 my-1 overflow-y-auto max-h-[75px]">
+                            {activeDayTasks.map(t => {
+                              const isStart = (t.startDate || '2026-08-01') === currentDayStr;
+                              const isEnd = (t.dueDate || '2026-08-15') === currentDayStr;
+
+                              let badgeStyle = 'bg-purple-100 text-purple-800 border-purple-200';
+                              let label = `⏳ ${t.id}`;
+
+                              if (isStart && isEnd) {
+                                badgeStyle = 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold';
+                                label = `▶️🏁 ${t.id}`;
+                              } else if (isStart) {
+                                badgeStyle = 'bg-blue-100 text-blue-800 border-blue-300 font-extrabold';
+                                label = `▶️ Start: ${t.id}`;
+                              } else if (isEnd) {
+                                badgeStyle = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-extrabold';
+                                label = `🏁 End: ${t.id}`;
+                              }
+
+                              return (
+                                <div
+                                  key={t.id}
+                                  onClick={() => setEditTaskModal({ ...t })}
+                                  className={`p-1 rounded-lg text-[10px] border truncate cursor-pointer shadow-2xs hover:scale-102 transition-transform ${badgeStyle}`}
+                                  title={`${t.title} | Start: ${t.startDate || '2026-08-01'} -> End: ${t.dueDate || '2026-08-15'} | Assignee: ${t.assignee}`}
+                                >
+                                  <p className="truncate font-bold">{label}</p>
+                                  <p className="text-[9px] opacity-75 truncate">{t.title}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* PROJECT MANAGEMENT (ADMIN ONLY) */}
+              {activeView === 'projects' && (
+                <div className="soft-card space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="section-title text-slate-900">Project Management (Admin Controls)</h3>
+                      <p className="small-text text-slate-500 font-medium">Manage active initiatives, update project leads, or edit team lead login credentials.</p>
+                    </div>
+
+                    {role === 'Admin' && (
+                      <button
+                        onClick={() => setShowAddProjectModal(true)}
+                        className="px-4 py-2.5 rounded-xl btn-purple-gradient text-white font-extrabold text-xs shadow-purple-btn flex items-center gap-1.5 self-start sm:self-auto"
+                      >
+                        ➕ Add New Project
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {projects.map(p => (
+                      <div key={p.id} className="p-5 rounded-2xl bg-purple-50/40 border border-purple-100 flex flex-col justify-between space-y-3">
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-mono font-extrabold text-[#6D5EF8]">{p.code}</span>
+                            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669]">{p.status || 'Active'}</span>
+                          </div>
+                          <h4 className="font-extrabold text-slate-900 body-text">{p.name}</h4>
+                          <p className="small-text text-slate-500 font-medium">Lead: <span className="font-bold text-slate-800">{p.lead}</span></p>
+                        </div>
+
+                        {role === 'Admin' && (
+                          <div className="flex items-center justify-between pt-2.5 border-t border-purple-100/60">
+                            <button
+                              onClick={() => setEditProjectModal({ ...p })}
+                              className="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-[#6D5EF8] font-extrabold text-xs transition-colors border border-purple-200 shadow-xs flex items-center gap-1"
+                              title="Edit Project Name & Lead"
+                            >
+                              ✏️ Edit Project
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                const leadEmp = employees.find(e => e.name.toLowerCase() === p.lead.toLowerCase());
+                                if (leadEmp) {
+                                  const userAcc = userDatabase.find(u => u.email.toLowerCase() === leadEmp.email.toLowerCase()) || {};
+                                  setIsCustomDeptEdit(false);
+                                  setCustomDeptTextEdit('');
+                                  setEditCredentialsModal({
+                                    empId: leadEmp.id,
+                                    name: leadEmp.name,
+                                    email: leadEmp.email,
+                                    password: userAcc.password || 'tl123',
+                                    role: userAcc.role || leadEmp.role || 'Team Leader',
+                                    designation: leadEmp.designation,
+                                    department: leadEmp.dept || leadEmp.department || 'Embedded Systems'
+                                  });
+                                } else {
+                                  alert(`No employee record found for lead: ${p.lead}. You can edit credentials from Employee Management.`);
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-extrabold text-xs transition-colors border border-blue-200 shadow-xs flex items-center gap-1"
+                              title="Edit Project Lead's Username & Password"
+                            >
+                              🔑 Edit Lead Credentials
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EMPLOYEE MANAGEMENT (ADMIN ONLY) */}
+              {activeView === 'employees' && (
+                <div className="soft-card space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="section-title text-slate-900">Employee Management (Admin Controls)</h3>
+                      <p className="small-text text-slate-500 font-medium">Add team engineers and configure role access credentials.</p>
+                    </div>
+
+                    {role === 'Admin' && (
+                      <button
+                        onClick={() => setShowAddEmployeeModal(true)}
+                        className="px-4 py-2.5 rounded-xl btn-purple-gradient text-white font-extrabold text-xs shadow-purple-btn flex items-center gap-1.5 self-start sm:self-auto"
+                      >
+                        ➕ Add New Employee
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {employees.map(e => {
+                      const userAcc = userDatabase.find(u => u.email.toLowerCase() === e.email.toLowerCase()) || {};
+                      return (
+                        <div key={e.id} className="p-5 rounded-2xl bg-purple-50/40 border border-purple-100 flex justify-between items-center">
+                          <div className="space-y-1">
+                            <h4 className="font-extrabold text-slate-900 body-text">{e.name}</h4>
+                            <p className="text-xs text-[#6D5EF8] font-bold">{e.designation}</p>
+                            <p className="text-[10px] text-slate-500">{e.dept || e.department}</p>
+                            <p className="text-[10px] text-slate-500 font-mono">
+                              Email: <span className="font-bold text-slate-800">{e.email}</span>
+                            </p>
+                            {role === 'Admin' && userAcc.password && (
+                              <p className="text-[10px] text-purple-700 font-mono">
+                                Password: <span className="font-extrabold">{userAcc.password}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col items-end gap-2">
+                            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669]">
+                              {e.status || 'Active'}
+                            </span>
+
+                            {role === 'Admin' && (
+                              <button
+                                onClick={() => setEditCredentialsModal({
+                                  empId: e.id,
+                                  name: e.name,
+                                  email: e.email,
+                                  password: userAcc.password || 'emp123',
+                                  role: userAcc.role || e.role || 'Employee',
+                                  designation: e.designation,
+                                  department: e.dept || e.department || 'Embedded Systems'
+                                })}
+                                className="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-[#6D5EF8] font-extrabold text-xs transition-colors border border-purple-200 shadow-xs"
+                                title="Edit Username & Password (HR/Admin Only)"
+                              >
+                                🔑 Edit Credentials
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </main>
+          </div>
+
+          {/* STATUS CHANGE PROMPT MODAL */}
+          {statusPromptModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-lg soft-card space-y-4 border border-purple-200 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                  <div className="space-y-0.5">
+                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                      statusPromptModal.targetStatus === 'On Hold' ? 'bg-[#FEF3C7] text-[#D97706]' : 'bg-[#D1FAE5] text-[#059669]'
+                    }`}>
+                      Status Update: {statusPromptModal.targetStatus}
+                    </span>
+                    <h3 className="font-bold text-base text-slate-900 mt-1">
+                      {statusPromptModal.titleText}
+                    </h3>
+                  </div>
+                  <button onClick={() => setStatusPromptModal(null)} className="text-slate-400 hover:text-slate-600">✕</button>
+                </div>
+
+                <div className="space-y-2 small-text">
+                  <p className="text-slate-600 font-semibold">
+                    Task: <span className="text-[#6D5EF8] font-mono font-bold">{statusPromptModal.taskId} - {statusPromptModal.taskTitle}</span>
+                  </p>
+
+                  <textarea
+                    rows="4"
+                    required
+                    value={promptInputText}
+                    onChange={(e) => setPromptInputText(e.target.value)}
+                    placeholder={statusPromptModal.placeholderText}
+                    className="w-full p-3.5 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8] resize-none font-medium"
+                  />
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-3 small-text">
+                  <button onClick={() => setStatusPromptModal(null)} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50">
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (!promptInputText.trim()) {
+                        alert(`Please enter a note for marking task as ${statusPromptModal.targetStatus}`);
+                        return;
+                      }
+                      applyTaskStatusUpdate(statusPromptModal.taskId, statusPromptModal.targetStatus, promptInputText);
+                    }}
+                    className="px-5 py-2.5 btn-purple-gradient text-white font-bold shadow-purple-btn"
+                  >
+                    Save & Change Status
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* EDIT TASK MODAL (HR / TL) */}
+          {editTaskModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="section-title text-[#202124] flex items-center gap-2">
+                    ✏️ Edit Task Details ({editTaskModal.id})
+                  </h3>
+                  <button onClick={() => setEditTaskModal(null)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setTasks(tasks.map(t => t.id === editTaskModal.id ? editTaskModal : t));
+                    setEditTaskModal(null);
+                    showToast(`Task ${editTaskModal.id} updated successfully!`);
+                  }}
+                  className="space-y-4 small-text"
+                >
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Task Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={editTaskModal.title}
+                      onChange={(e) => setEditTaskModal({ ...editTaskModal, title: e.target.value })}
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Assignee Name</label>
+                      <select
+                        value={editTaskModal.assignee}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, assignee: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        {employees.map(emp => (
+                          <option key={emp.id} value={emp.name}>{emp.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Project Name</label>
+                      <select
+                        value={editTaskModal.project}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, project: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        {projects.map(prj => (
+                          <option key={prj.id} value={prj.name}>{prj.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Category</label>
+                      <select
+                        value={editTaskModal.category || 'Planned Work'}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, category: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="Planned Work">Planned Work</option>
+                        <option value="Extra Work">Extra Work</option>
+                        <option value="Bug Fix">Bug Fix</option>
+                        <option value="Support">Support</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Priority</label>
+                      <select
+                        value={editTaskModal.priority || 'High'}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, priority: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Status</label>
+                      <select
+                        value={editTaskModal.status}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, status: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="In Progress">In Progress</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Pending">Pending</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* START DATE & EXPECTED END DATE SCHEDULE EDIT */}
+                  <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-purple-50/60 border border-purple-100">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">🚀 Start Date</label>
+                      <input
+                        type="date"
+                        required
+                        value={editTaskModal.startDate || '2026-08-01'}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, startDate: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-blue-700 bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">🏁 Expected End Date (Due)</label>
+                      <input
+                        type="date"
+                        required
+                        value={editTaskModal.dueDate || '2026-08-15'}
+                        onChange={(e) => setEditTaskModal({ ...editTaskModal, dueDate: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-emerald-700 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Description / Notes</label>
+                    <textarea
+                      rows="3"
+                      value={editTaskModal.description || ''}
+                      onChange={(e) => setEditTaskModal({ ...editTaskModal, description: e.target.value })}
+                      className="w-full p-3 rounded-xl border border-slate-200 text-slate-900 font-medium resize-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditTaskModal(null)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 btn-purple-gradient text-white font-bold rounded-xl shadow-purple-btn"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ADD NEW EMPLOYEE MODAL (ADMIN ONLY) */}
+          {showAddEmployeeModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="section-title text-[#202124] flex items-center gap-2">
+                    ➕ Register New Employee & Login Credentials
+                  </h3>
+                  <button onClick={() => setShowAddEmployeeModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+
+                <form onSubmit={handleCreateEmployeeSubmit} className="space-y-4 small-text">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newEmpName}
+                      onChange={(e) => setNewEmpName(e.target.value)}
+                      placeholder="e.g. Kavitha Sundaram"
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Work Email (Username)</label>
+                      <input
+                        type="email"
+                        required
+                        value={newEmpEmail}
+                        onChange={(e) => setNewEmpEmail(e.target.value)}
+                        placeholder="kavitha@petals.com"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Login Password</label>
+                      <input
+                        type="text"
+                        required
+                        value={newEmpPassword}
+                        onChange={(e) => setNewEmpPassword(e.target.value)}
+                        placeholder="pass123"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">System Role</label>
+                      <select
+                        value={newEmpRole}
+                        onChange={(e) => setNewEmpRole(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="Employee">Employee</option>
+                        <option value="Team Leader">Team Leader</option>
+                        <option value="Admin">Admin / HR</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Department</label>
+                      <select
+                        value={isCustomDept ? 'CUSTOM_NEW' : newEmpDepartment}
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM_NEW') {
+                            setIsCustomDept(true);
+                          } else {
+                            setIsCustomDept(false);
+                            setNewEmpDepartment(e.target.value);
+                          }
+                        }}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-[#6D5EF8]"
+                      >
+                        {departments.map(d => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                        <option value="CUSTOM_NEW">➕ Add Custom Department...</option>
+                      </select>
+
+                      {isCustomDept && (
+                        <input
+                          type="text"
+                          required
+                          placeholder="Type custom department name..."
+                          value={customDeptText}
+                          onChange={(e) => setCustomDeptText(e.target.value)}
+                          className="w-full mt-2 p-2.5 rounded-xl border border-purple-300 font-bold text-purple-900 bg-purple-50 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Designation / Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={newEmpDesignation}
+                      onChange={(e) => setNewEmpDesignation(e.target.value)}
+                      placeholder="e.g. Senior Firmware Developer"
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddEmployeeModal(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 btn-purple-gradient text-white font-bold rounded-xl shadow-purple-btn"
+                    >
+                      Create Employee & Activate Login
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ADD NEW PROJECT MODAL (ADMIN ONLY) */}
+          {showAddProjectModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="section-title text-[#202124] flex items-center gap-2">
+                    ➕ Create New Project Initiative
+                  </h3>
+                  <button onClick={() => setShowAddProjectModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+
+                <form onSubmit={handleCreateProjectSubmit} className="space-y-4 small-text">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Project Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newPrjName}
+                      onChange={(e) => setNewPrjName(e.target.value)}
+                      placeholder="e.g. STM32 Motor Drive Controller"
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Project Code</label>
+                      <input
+                        type="text"
+                        required
+                        value={newPrjCode}
+                        onChange={(e) => setNewPrjCode(e.target.value)}
+                        placeholder="PET-MOT-05"
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Project Status</label>
+                      <select
+                        value={newPrjStatus}
+                        onChange={(e) => setNewPrjStatus(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Project Lead (TL)</label>
+                    <select
+                      value={newPrjLead}
+                      onChange={(e) => setNewPrjLead(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                    >
+                      {employees.map(e => (
+                        <option key={e.id} value={e.name}>{e.name} ({e.designation})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddProjectModal(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 btn-purple-gradient text-white font-bold rounded-xl shadow-purple-btn"
+                    >
+                      Create Project
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* EDIT PROJECT MODAL (ADMIN ONLY) */}
+          {editProjectModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="section-title text-[#202124] flex items-center gap-2">
+                    ✏️ Edit Project: {editProjectModal.code}
+                  </h3>
+                  <button onClick={() => setEditProjectModal(null)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+
+                <form onSubmit={handleEditProjectSubmit} className="space-y-4 small-text">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Project Title</label>
+                    <input
+                      type="text"
+                      required
+                      value={editProjectModal.name}
+                      onChange={(e) => setEditProjectModal({ ...editProjectModal, name: e.target.value })}
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Project Code</label>
+                      <input
+                        type="text"
+                        required
+                        value={editProjectModal.code}
+                        onChange={(e) => setEditProjectModal({ ...editProjectModal, code: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Status</label>
+                      <select
+                        value={editProjectModal.status || 'Active'}
+                        onChange={(e) => setEditProjectModal({ ...editProjectModal, status: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Assign Project Lead</label>
+                    <select
+                      value={editProjectModal.lead}
+                      onChange={(e) => setEditProjectModal({ ...editProjectModal, lead: e.target.value })}
+                      className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                    >
+                      {employees.map(e => (
+                        <option key={e.id} value={e.name}>{e.name} ({e.designation})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProject(editProjectModal.id, editProjectModal.code)}
+                      className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs border border-red-200 transition-colors flex items-center gap-1.5 shadow-xs"
+                    >
+                      🗑️ Delete Project
+                    </button>
+
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setEditProjectModal(null)}
+                        className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 btn-purple-gradient text-white font-bold rounded-xl shadow-purple-btn"
+                      >
+                        Save Project Changes
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* EDIT EMPLOYEE CREDENTIALS MODAL (HR / ADMIN ONLY) */}
+          {editCredentialsModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                      HR / Admin Control
+                    </span>
+                    <h3 className="section-title text-[#202124] mt-1">
+                      🔑 Edit Credentials: {editCredentialsModal.name}
+                    </h3>
+                  </div>
+                  <button onClick={() => setEditCredentialsModal(null)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const newEmail = editCredentialsModal.email.trim().toLowerCase();
+                    const newPass = editCredentialsModal.password.trim();
+                    const finalDept = (isCustomDeptEdit && customDeptTextEdit.trim()) ? customDeptTextEdit.trim() : editCredentialsModal.department;
+
+                    if (isCustomDeptEdit && customDeptTextEdit.trim() && !departments.includes(customDeptTextEdit.trim())) {
+                      setDepartments([...departments, customDeptTextEdit.trim()]);
+                    }
+
+                    // Update user database
+                    const updatedDb = userDatabase.map(u => {
+                      if (u.id === editCredentialsModal.empId || u.name === editCredentialsModal.name || u.email.toLowerCase() === editCredentialsModal.email.toLowerCase()) {
+                        return {
+                          ...u,
+                          email: newEmail,
+                          password: newPass,
+                          name: editCredentialsModal.name.trim(),
+                          designation: editCredentialsModal.designation.trim(),
+                          department: finalDept
+                        };
+                      }
+                      return u;
+                    });
+
+                    // Update employees list
+                    const updatedEmps = employees.map(emp => {
+                      if (emp.id === editCredentialsModal.empId || emp.name === editCredentialsModal.name) {
+                        return {
+                          ...emp,
+                          email: newEmail,
+                          name: editCredentialsModal.name.trim(),
+                          designation: editCredentialsModal.designation.trim(),
+                          dept: finalDept,
+                          department: finalDept
+                        };
+                      }
+                      return emp;
+                    });
+
+                    setUserDatabase(updatedDb);
+                    setEmployees(updatedEmps);
+                    setEditCredentialsModal(null);
+                    setIsCustomDeptEdit(false);
+                    setCustomDeptTextEdit('');
+                    showToast(`Credentials updated for ${editCredentialsModal.name}! New login active.`);
+                  }}
+                  className="space-y-4 small-text"
+                >
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Employee Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={editCredentialsModal.name}
+                      onChange={(e) => setEditCredentialsModal({ ...editCredentialsModal, name: e.target.value })}
+                      className="w-full p-3 rounded-xl border border-slate-200 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Username / Work Email</label>
+                      <input
+                        type="email"
+                        required
+                        value={editCredentialsModal.email}
+                        onChange={(e) => setEditCredentialsModal({ ...editCredentialsModal, email: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">New Password</label>
+                      <input
+                        type="text"
+                        required
+                        value={editCredentialsModal.password}
+                        onChange={(e) => setEditCredentialsModal({ ...editCredentialsModal, password: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-purple-700 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Designation</label>
+                      <input
+                        type="text"
+                        required
+                        value={editCredentialsModal.designation}
+                        onChange={(e) => setEditCredentialsModal({ ...editCredentialsModal, designation: e.target.value })}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">Department</label>
+                      <select
+                        value={isCustomDeptEdit ? 'CUSTOM_NEW' : editCredentialsModal.department}
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM_NEW') {
+                            setIsCustomDeptEdit(true);
+                          } else {
+                            setIsCustomDeptEdit(false);
+                            setEditCredentialsModal({ ...editCredentialsModal, department: e.target.value });
+                          }
+                        }}
+                        className="w-full p-2.5 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-[#6D5EF8]"
+                      >
+                        {departments.map(d => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                        <option value="CUSTOM_NEW">➕ Add Custom Department...</option>
+                      </select>
+
+                      {isCustomDeptEdit && (
+                        <input
+                          type="text"
+                          required
+                          placeholder="Type custom department name..."
+                          value={customDeptTextEdit}
+                          onChange={(e) => setCustomDeptTextEdit(e.target.value)}
+                          className="w-full mt-2 p-2.5 rounded-xl border border-purple-300 font-bold text-purple-900 bg-purple-50 focus:outline-none focus:ring-2 focus:ring-[#6D5EF8]"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete ${editCredentialsModal.name}? This will remove their record and permanently revoke login access.`)) {
+                          const empName = editCredentialsModal.name;
+                          const empId = editCredentialsModal.empId;
+                          const empEmail = editCredentialsModal.email.toLowerCase();
+
+                          setEmployees(employees.filter(e => e.id !== empId && e.name !== empName));
+                          setUserDatabase(userDatabase.filter(u => u.email.toLowerCase() !== empEmail && u.name !== empName));
+                          setEditCredentialsModal(null);
+                          setIsCustomDeptEdit(false);
+                          setCustomDeptTextEdit('');
+                          showToast(`Employee ${empName} and account credentials deleted.`);
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs border border-red-200 transition-colors flex items-center gap-1.5 shadow-xs"
+                    >
+                      🗑️ Delete Account
+                    </button>
+
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setEditCredentialsModal(null)}
+                        className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 btn-purple-gradient text-white font-bold rounded-xl shadow-purple-btn"
+                      >
+                        Save & Update Login Credentials
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ZOHO MAIL DISPATCH & INBOX LOG MODAL */}
+          {showZohoMailModal && (
+            <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="w-full max-w-5xl bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
+                {/* Zoho Header Bar */}
+                <div className="bg-[#0f172a] text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-extrabold text-sm shadow-md">
+                      ⚡
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-base tracking-tight flex items-center gap-2">
+                        Zoho Mail Notification Center
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-blue-500/30 text-blue-300 font-mono border border-blue-400/30">
+                          SMTP Active: smtppro.zoho.in
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-400">Automated Zoho Mail dispatch logs for task assignments & status updates.</p>
+                    </div>
+                  </div>
+
+                  <button onClick={() => setShowZohoMailModal(false)} className="text-slate-400 hover:text-white font-bold text-xl px-2 py-1">✕</button>
+                </div>
+
+                {/* Main Split Body */}
+                <div className="flex-1 flex min-h-0 overflow-hidden">
+                  {/* Left: Email List */}
+                  <div className="w-1/3 border-r border-slate-200 bg-white overflow-y-auto divide-y divide-slate-100">
+                    <div className="p-3.5 bg-slate-100/80 font-extrabold text-[11px] uppercase tracking-wider text-slate-500 flex justify-between items-center sticky top-0 z-10 backdrop-blur-md">
+                      <span>Sent Zoho Mails ({zohoMailLogs.length})</span>
+                      <span className="text-emerald-600 font-bold flex items-center gap-1">● Live Sync</span>
+                    </div>
+
+                    {zohoMailLogs.map(log => {
+                      const isSelected = (selectedZohoLog?.id || zohoMailLogs[0]?.id) === log.id;
+                      return (
+                        <div
+                          key={log.id}
+                          onClick={() => setSelectedZohoLog(log)}
+                          className={`p-4 cursor-pointer transition-colors space-y-1 ${isSelected ? 'bg-purple-50/80 border-l-4 border-l-[#6D5EF8]' : 'hover:bg-slate-50'}`}
+                        >
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-extrabold text-[#6D5EF8] truncate max-w-[150px]">To: {log.toName || log.to}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">{log.timestamp}</span>
+                          </div>
+                          <p className="font-bold text-xs text-slate-900 line-clamp-1">{log.subject}</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">From: {log.from}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right: Email Template Viewer matching user's Zoho Mail screenshot */}
+                  <div className="w-2/3 bg-[#f4f6f9] p-6 overflow-y-auto flex items-center justify-center">
+                    {(() => {
+                      const currentMail = selectedZohoLog || zohoMailLogs[0];
+                      if (!currentMail) return <div className="text-center text-slate-400 p-10">No Zoho Mails dispatched yet</div>;
+
+                      return (
+                        <div className="w-full max-w-xl bg-white rounded-2xl overflow-hidden shadow-xl border border-slate-200 space-y-0 my-auto">
+                          {/* Dark Blue Header Banner matching Zoho email screenshot */}
+                          <div className="bg-[#0f172a] text-white p-6 text-center space-y-2">
+                            <h2 className="text-lg font-extrabold tracking-tight flex items-center justify-center gap-2">
+                              ⚡ petals automation
+                            </h2>
+                            <div className="inline-block px-3 py-1 rounded-full bg-white/15 text-slate-300 text-xs font-bold">
+                              ➖ Task Updated
+                            </div>
+                            <p className="text-[11px] text-slate-400">
+                              Task #{currentMail.id.replace('eml-', '')} - Details of a task you own have been updated.
+                            </p>
+                          </div>
+
+                          {/* Email Body Content */}
+                          <div className="p-8 space-y-6 text-slate-700 text-xs leading-relaxed">
+                            <div className="space-y-1">
+                              <p className="text-sm">
+                                Hi <strong>{currentMail.toName || 'Team Member'}</strong>,
+                              </p>
+                              <p className="text-slate-600">
+                                <strong>{currentMail.from}</strong> has details of a task you own updated.
+                              </p>
+                            </div>
+
+                            {/* Task Summary Box matching screenshot */}
+                            <div className="bg-slate-50 border border-slate-200/90 rounded-xl p-5 space-y-2.5">
+                              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                                TASK SUMMARY
+                              </span>
+
+                              <div className="flex justify-between py-1.5 border-b border-slate-200/60">
+                                <span className="font-bold text-slate-500">Task Name</span>
+                                <span className="font-extrabold text-slate-900 text-right max-w-xs">{currentMail.taskName}</span>
+                              </div>
+
+                              <div className="flex justify-between py-1.5 border-b border-slate-200/60">
+                                <span className="font-bold text-slate-500">Previous Status</span>
+                                <span className="font-semibold text-slate-600">{currentMail.previousStatus || 'Hold'}</span>
+                              </div>
+
+                              <div className="flex justify-between py-1.5 border-b border-slate-200/60">
+                                <span className="font-bold text-slate-500">Current Status</span>
+                                <span className={`px-3 py-0.5 rounded-full font-extrabold text-[10px] uppercase ${
+                                  currentMail.currentStatus === 'Hold' || currentMail.currentStatus === 'HOLD' || currentMail.currentStatus === 'On Hold' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
+                                  currentMail.currentStatus === 'Completed' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                                }`}>
+                                  {currentMail.currentStatus}
+                                </span>
+                              </div>
+
+                              <div className="flex justify-between py-1.5">
+                                <span className="font-bold text-slate-500">Updated By</span>
+                                <span className="font-extrabold text-slate-900">{currentMail.updatedBy}</span>
+                              </div>
+                            </div>
+
+                            {/* Changes Made Table matching screenshot */}
+                            {currentMail.changes && currentMail.changes.length > 0 && (
+                              <div className="space-y-2">
+                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
+                                  CHANGES MADE
+                                </span>
+                                <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                                  <thead className="bg-slate-100 text-slate-500 uppercase font-extrabold text-[10px]">
+                                    <tr>
+                                      <th className="p-2.5">FIELD</th>
+                                      <th className="p-2.5">PREVIOUS</th>
+                                      <th className="p-2.5">UPDATED</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-100 bg-white">
+                                    {currentMail.changes.map((c, i) => (
+                                      <tr key={i}>
+                                        <td className="p-2.5 font-bold text-slate-800">{c.field}</td>
+                                        <td className="p-2.5"><span className="px-2 py-0.5 rounded bg-rose-50 text-rose-600 font-mono text-[11px]">{c.previous}</span></td>
+                                        <td className="p-2.5"><span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono font-bold text-[11px]">{c.updated}</span></td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+
+                            {/* View Task Button */}
+                            <div className="text-center pt-2">
+                              <button
+                                onClick={() => {
+                                  setShowZohoMailModal(false);
+                                  setActiveView('list-view');
+                                }}
+                                className="px-6 py-3 rounded-xl bg-[#0f172a] text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition-colors inline-block cursor-pointer"
+                              >
+                                View Task in Portal →
+                              </button>
+                              <p className="text-[10px] text-slate-400 mt-2">
+                                If the button doesn't work, log in to the portal and check your task list.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Toast Notification */}
+          {toastMessage && (
+            <div className="fixed bottom-6 right-6 p-4 rounded-xl btn-purple-gradient text-white font-bold text-xs shadow-2xl z-50">
+              {toastMessage}
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<MasterApp />);
+  </script>
+</body>
+</html>

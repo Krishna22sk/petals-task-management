@@ -1,0 +1,276 @@
+{
+  "roles": [
+    {
+      "id": "role-1",
+      "role_name": "Admin",
+      "description": "Full system access"
+    },
+    {
+      "id": "role-2",
+      "role_name": "HR",
+      "description": "Employee management"
+    },
+    {
+      "id": "role-3",
+      "role_name": "Manager",
+      "description": "Project management"
+    },
+    {
+      "id": "role-4",
+      "role_name": "Team Leader",
+      "description": "Task assignment and team oversight"
+    },
+    {
+      "id": "role-5",
+      "role_name": "Employee",
+      "description": "Task execution and workflow"
+    }
+  ],
+  "departments": [
+    {
+      "id": "dept-1",
+      "department_name": "Embedded Systems",
+      "code": "EMB"
+    },
+    {
+      "id": "dept-2",
+      "department_name": "SCADA & Industrial Software",
+      "code": "SCD"
+    },
+    {
+      "id": "dept-3",
+      "department_name": "Hardware & PCB Design",
+      "code": "PCB"
+    },
+    {
+      "id": "dept-4",
+      "department_name": "Human Resources & Executive",
+      "code": "HRE"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-admin",
+      "name": "Sarah Jenkins",
+      "email": "admin@petals.com",
+      "password": "$2a$10$eE61H.a3oHh/QkX49mD.lOqBqY7T.6jS8k4rJp5L5M9a.L5qL5q5q",
+      "role_id": "role-1",
+      "department_id": "dept-4",
+      "designation_id": "VP of Human Resources & Operations",
+      "profile_image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "status": "Active",
+      "created_at": "2026-01-01T00:00:00.000Z",
+      "updated_at": "2026-08-10T11:00:00.000Z"
+    },
+    {
+      "id": "usr-tl",
+      "name": "Rajesh Kulkarni",
+      "email": "tl@petals.com",
+      "password": "$2a$10$eE61H.a3oHh/QkX49mD.lOqBqY7T.6jS8k4rJp5L5M9a.L5qL5q5q",
+      "role_id": "role-4",
+      "department_id": "dept-1",
+      "designation_id": "Embedded Systems Lead Engineer",
+      "profile_image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "status": "Active",
+      "created_at": "2026-01-01T00:00:00.000Z",
+      "updated_at": "2026-08-10T11:00:00.000Z"
+    },
+    {
+      "name": "KRISH",
+      "email": "krish@gmail.com",
+      "password": "$2a$10$oBna7Thlu8IwtTBkRry8SenITNiXH/If4iSfHJBG4BkTOtq4.tqX.",
+      "role": "Employee",
+      "role_name": "Employee",
+      "department": "Embedded Systems",
+      "designation_id": "Firmware Engineer",
+      "profile_image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "status": "Active",
+      "id": "use-1786346853504-qbv3d2",
+      "created_at": "2026-08-10T07:27:33.504Z",
+      "updated_at": "2026-08-10T07:27:33.504Z"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp-01",
+      "user_id": "usr-admin",
+      "name": "Sarah Jenkins",
+      "email": "admin@petals.com",
+      "role": "Admin",
+      "designation": "VP of Human Resources",
+      "department": "Human Resources & Executive",
+      "phone": "+1-555-0192",
+      "status": "Active",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "tasks_count": 5,
+      "efficiency": 99.2
+    },
+    {
+      "id": "emp-02",
+      "user_id": "usr-tl",
+      "name": "Rajesh Kulkarni",
+      "email": "tl@petals.com",
+      "role": "Team Leader",
+      "designation": "Embedded Systems Lead",
+      "department": "Embedded Systems",
+      "phone": "+1-555-0144",
+      "status": "Active",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "tasks_count": 8,
+      "efficiency": 96.5
+    },
+    {
+      "userId": "use-1786346853504-qbv3d2",
+      "user_id": "use-1786346853504-qbv3d2",
+      "name": "KRISH",
+      "email": "krish@gmail.com",
+      "password": "123",
+      "role": "Employee",
+      "designation": "Firmware Engineer",
+      "department": "Embedded Systems",
+      "phone": "",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "status": "Active",
+      "tasksCount": 0,
+      "efficiency": 100,
+      "id": "emp-1786346853504-fauhjd",
+      "created_at": "2026-08-10T07:27:33.504Z",
+      "updated_at": "2026-08-10T07:27:33.504Z"
+    }
+  ],
+  "projects": [],
+  "tasks": [],
+  "notifications": [],
+  "activity_logs": [
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346833368-x542no",
+      "created_at": "2026-08-10T07:27:13.368Z",
+      "updated_at": "2026-08-10T07:27:13.368Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346833372-eqfmg1",
+      "created_at": "2026-08-10T07:27:13.372Z",
+      "updated_at": "2026-08-10T07:27:13.372Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "action": "EMPLOYEE_CREATED",
+      "details": "Employee KRISH (krish@gmail.com) was created",
+      "id": "act-1786346853505-5zd074",
+      "created_at": "2026-08-10T07:27:33.505Z",
+      "updated_at": "2026-08-10T07:27:33.505Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346864057-9bbkya",
+      "created_at": "2026-08-10T07:27:44.057Z",
+      "updated_at": "2026-08-10T07:27:44.057Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346886553-kmi5xo",
+      "created_at": "2026-08-10T07:28:06.553Z",
+      "updated_at": "2026-08-10T07:28:06.553Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346921020-v820oc",
+      "created_at": "2026-08-10T07:28:41.020Z",
+      "updated_at": "2026-08-10T07:28:41.020Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786346948084-0qg74b",
+      "created_at": "2026-08-10T07:29:08.084Z",
+      "updated_at": "2026-08-10T07:29:08.084Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGOUT",
+      "details": "User Sarah Jenkins logged out",
+      "ip_address": "::1",
+      "id": "act-1786351163823-furu02",
+      "created_at": "2026-08-10T08:39:23.823Z",
+      "updated_at": "2026-08-10T08:39:23.823Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786351167980-0la1tg",
+      "created_at": "2026-08-10T08:39:27.980Z",
+      "updated_at": "2026-08-10T08:39:27.980Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGOUT",
+      "details": "User Sarah Jenkins logged out",
+      "ip_address": "::1",
+      "id": "act-1786351183848-tfcd02",
+      "created_at": "2026-08-10T08:39:43.848Z",
+      "updated_at": "2026-08-10T08:39:43.848Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786351187981-fmvewu",
+      "created_at": "2026-08-10T08:39:47.981Z",
+      "updated_at": "2026-08-10T08:39:47.981Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGOUT",
+      "details": "User Sarah Jenkins logged out",
+      "ip_address": "::1",
+      "id": "act-1786351570213-gyn7vj",
+      "created_at": "2026-08-10T08:46:10.213Z",
+      "updated_at": "2026-08-10T08:46:10.213Z"
+    },
+    {
+      "user": "Sarah Jenkins",
+      "role": "Admin",
+      "action": "USER_LOGIN",
+      "details": "User Sarah Jenkins (Admin) logged in",
+      "ip_address": "::1",
+      "id": "act-1786351574351-ie3ixa",
+      "created_at": "2026-08-10T08:46:14.351Z",
+      "updated_at": "2026-08-10T08:46:14.351Z"
+    }
+  ],
+  "employee_queries": [],
+  "queries": []
+}

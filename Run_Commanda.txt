@@ -1,0 +1,7 @@
+Backend 
+cd "C:\Users\Admin\.gemini\antigravity-ide\scratch\petals-task-management\server"
+npm start
+
+Frontend 
+cd "C:\Users\Admin\.gemini\antigravity-ide\scratch\petals-task-management"
+npm run dev
