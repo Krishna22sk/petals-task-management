@@ -1,6 +1,12 @@
 // API Client for Petals Automation REST Backend
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let rawBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+if (rawBaseUrl.endsWith('/')) {
+  rawBaseUrl = rawBaseUrl.slice(0, -1);
+}
+if (!rawBaseUrl.endsWith('/api') && !rawBaseUrl.includes('/api/')) {
+  rawBaseUrl += '/api';
+}
+const API_BASE_URL = rawBaseUrl;
 
 // Helper to get stored JWT Token
 const getAuthToken = () => {
@@ -23,12 +29,22 @@ const apiFetch = async (endpoint, options = {}) => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const fullUrl = `${API_BASE_URL}${formattedEndpoint}`;
+    
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    let data;
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const rawText = await response.text();
+      throw new Error(`Server endpoint [${fullUrl}] returned non-JSON response (${response.status}). Please verify VITE_API_URL in Netlify.`);
+    }
 
     if (!response.ok) {
       throw new Error(data.message || data.error || `HTTP ${response.status} Error`);
