@@ -314,26 +314,53 @@ export default function TaskListView({
       return;
     }
 
-    const headers = ["Task Code", "Task Name", "Project", "Employee", "TL Name", "Category", "Priority", "Status", "Start Date", "Due Date", "Runtime", "Actual Hours"];
-    const rows = filteredTasks.map(t => {
-      const elapsed = getElapsedSeconds(t);
-      const runtime = formatTime(elapsed);
-      const empName = t.assigneeName || (typeof t.assignee === 'string' ? t.assignee : t.assignee?.name) || 'Unassigned';
-      const tlName = t.assignedBy || t.teamLeaderName || 'Management';
-      const taskCodeStr = t.taskCode || (t.id?.length > 15 ? `TSK-${t.id.slice(0,6).toUpperCase()}` : t.id);
+    const headers = [
+      "S. NO",
+      "EMPLOYEE NAME",
+      "PROJECT NAME",
+      "TASK NAME",
+      "TASK DESCRIPTION",
+      "EMPLOYEE DESCRIPTION",
+      "WORK CATEGORY",
+      "T L NAME",
+      "TASK LEVEL",
+      "TASK TYPE",
+      "STATUS",
+      "DUE DATE",
+      "START DATE",
+      "END DATE"
+    ];
+
+    const rows = filteredTasks.map((t, idx) => {
+      const empName = t.assigneeName || (typeof t.assignee === 'string' ? t.assignee : t.assignee?.name) || currentUser?.name || 'KrishnaMoorthy';
+      const projectName = t.project || 'AioTix';
+      const taskName = t.title || t.taskName || '';
+      const taskDesc = t.description || '';
+      const empDesc = t.employeeDescription || t.completionNotes || '';
+      const workCat = t.category || t.workCategory || 'Planned Work';
+      const tlName = t.assignedBy || t.teamLeaderName || 'Karthikeyan';
+      const levelStr = t.priority === 'High' ? 'High Level Task' : t.priority === 'Medium' ? 'Medium Level Task' : t.priority === 'Low' ? 'Low Level Task' : 'High Level Task';
+      const taskType = t.taskType || 'Project';
+      const status = t.status || 'In Progress';
+      const dueDate = t.dueDate || '';
+      const startDate = t.startDate || '';
+      const endDate = t.endDate || (t.status === 'Completed' ? (t.dueDate || '-') : '-');
+
       return [
-        `"${taskCodeStr.replace(/"/g, '""')}"`,
-        `"${(t.title || '').replace(/"/g, '""')}"`,
-        `"${(t.project || '').replace(/"/g, '""')}"`,
+        `"${idx + 1}"`,
         `"${empName.replace(/"/g, '""')}"`,
+        `"${projectName.replace(/"/g, '""')}"`,
+        `"${taskName.replace(/"/g, '""')}"`,
+        `"${taskDesc.replace(/"/g, '""')}"`,
+        `"${empDesc.replace(/"/g, '""')}"`,
+        `"${workCat.replace(/"/g, '""')}"`,
         `"${tlName.replace(/"/g, '""')}"`,
-        `"${t.category || ''}"`,
-        `"${t.priority || ''}"`,
-        `"${t.status || ''}"`,
-        `"${t.startDate || ''}"`,
-        `"${t.dueDate || ''}"`,
-        `"${runtime}"`,
-        `"${(elapsed / 3600).toFixed(2)}"`
+        `"${levelStr.replace(/"/g, '""')}"`,
+        `"${taskType.replace(/"/g, '""')}"`,
+        `"${status.replace(/"/g, '""')}"`,
+        `"${dueDate.replace(/"/g, '""')}"`,
+        `"${startDate.replace(/"/g, '""')}"`,
+        `"${endDate.replace(/"/g, '""')}"`
       ].join(",");
     });
 
@@ -343,7 +370,7 @@ export default function TaskListView({
       ? `Team_Tasks_Report_${(currentUser?.name || 'TL').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`
       : `All_Employees_Task_Report_${new Date().toISOString().slice(0, 10)}.csv`;
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);

@@ -36,13 +36,55 @@ export default function ReportsView({ currentUser, tasks = [], employees = [], o
       return;
     }
 
-    const csvHeader = "Task Code,Task Name,Project,Category,Priority,Status,Assignee,TL Name,Start Date,Due Date,Actual Hours\n";
-    const csvRows = effectiveTasks.map(t => {
-      const codeStr = t.taskCode || (t.id?.length > 15 ? `TSK-${t.id.slice(0,6).toUpperCase()}` : t.id);
-      const empName = t.assigneeName || t.assignee?.name || (typeof t.assignee === 'string' ? t.assignee : '') || 'Unassigned';
-      const tlName = t.assignedBy || t.teamLeaderName || 'Management';
-      return `"${codeStr}","${(t.title || '').replace(/"/g, '""')}","${(t.project || '').replace(/"/g, '""')}","${t.category || ''}","${t.priority || ''}","${t.status || ''}","${empName}","${tlName}","${t.startDate || ''}","${t.dueDate || ''}",${t.actualTime || 0}`;
-    }).join("\n");
+    const headers = [
+      "S. NO",
+      "EMPLOYEE NAME",
+      "PROJECT NAME",
+      "TASK NAME",
+      "TASK DESCRIPTION",
+      "EMPLOYEE DESCRIPTION",
+      "WORK CATEGORY",
+      "T L NAME",
+      "TASK LEVEL",
+      "TASK TYPE",
+      "STATUS",
+      "DUE DATE",
+      "START DATE",
+      "END DATE"
+    ];
+
+    const rows = effectiveTasks.map((t, idx) => {
+      const empName = t.assigneeName || (typeof t.assignee === 'string' ? t.assignee : t.assignee?.name) || currentUser?.name || 'KrishnaMoorthy';
+      const projectName = t.project || 'AioTix';
+      const taskName = t.title || t.taskName || '';
+      const taskDesc = t.description || '';
+      const empDesc = t.employeeDescription || t.completionNotes || '';
+      const workCat = t.category || t.workCategory || 'Planned Work';
+      const tlName = t.assignedBy || t.teamLeaderName || 'Karthikeyan';
+      const levelStr = t.priority === 'High' ? 'High Level Task' : t.priority === 'Medium' ? 'Medium Level Task' : t.priority === 'Low' ? 'Low Level Task' : 'High Level Task';
+      const taskType = t.taskType || 'Project';
+      const status = t.status || 'In Progress';
+      const dueDate = t.dueDate || '';
+      const startDate = t.startDate || '';
+      const endDate = t.endDate || (t.status === 'Completed' ? (t.dueDate || '-') : '-');
+
+      return [
+        `"${idx + 1}"`,
+        `"${empName.replace(/"/g, '""')}"`,
+        `"${projectName.replace(/"/g, '""')}"`,
+        `"${taskName.replace(/"/g, '""')}"`,
+        `"${taskDesc.replace(/"/g, '""')}"`,
+        `"${empDesc.replace(/"/g, '""')}"`,
+        `"${workCat.replace(/"/g, '""')}"`,
+        `"${tlName.replace(/"/g, '""')}"`,
+        `"${levelStr.replace(/"/g, '""')}"`,
+        `"${taskType.replace(/"/g, '""')}"`,
+        `"${status.replace(/"/g, '""')}"`,
+        `"${dueDate.replace(/"/g, '""')}"`,
+        `"${startDate.replace(/"/g, '""')}"`,
+        `"${endDate.replace(/"/g, '""')}"`
+      ].join(",");
+    });
 
     const reportFileName = role === 'Employee'
       ? `My_Personal_Task_Report_${(currentUser?.name || 'Employee').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`
@@ -50,7 +92,7 @@ export default function ReportsView({ currentUser, tasks = [], employees = [], o
       ? `TL_Team_Task_Report_${(currentUser?.name || 'TL').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`
       : `All_Employees_Task_Report_${new Date().toISOString().slice(0,10)}.csv`;
 
-    const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\uFEFF" + headers.join(",") + "\n" + rows.join("\n")], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -62,38 +104,99 @@ export default function ReportsView({ currentUser, tasks = [], employees = [], o
     onTriggerToast(`Excel (.CSV) Task Report downloaded (${effectiveTasks.length} tasks)! 📊`, 'success');
   };
 
-  // PDF Summary Export Trigger Function
+  // PDF Summary & Table Export Trigger Function
   const exportPdfReport = () => {
-    const reportText = `PETALS AUTOMATION PVT. LTD.
-TASK MANAGEMENT & SYSTEM VELOCITY REPORT
-User: ${currentUser?.name || 'User'} (${role})
-Generated on: ${new Date().toLocaleString()}
-Scope: ${role === 'Employee' ? 'Personal Assigned Tasks' : role === 'Team Leader' ? 'Team Tasks' : 'All Organization Tasks'}
-Period: ${reportRange} Report
+    if (!effectiveTasks || effectiveTasks.length === 0) {
+      onTriggerToast('No tasks available for export', 'error');
+      return;
+    }
 
-SUMMARY METRICS:
-------------------------------------------
-Total Scoped Tasks: ${effectiveTasks.length}
-Completed Tasks: ${effectiveTasks.filter(t => t.status === 'Completed').length}
-In Progress Tasks: ${effectiveTasks.filter(t => t.status === 'In Progress').length}
-On Hold Tasks: ${effectiveTasks.filter(t => t.status === 'On Hold').length}
-Pending Tasks: ${effectiveTasks.filter(t => t.status === 'Pending').length}
+    const printWindow = window.open('', '_blank');
+    const tableRowsHtml = effectiveTasks.map((t, idx) => {
+      const empName = t.assigneeName || (typeof t.assignee === 'string' ? t.assignee : t.assignee?.name) || currentUser?.name || 'KrishnaMoorthy';
+      const projectName = t.project || 'AioTix';
+      const taskName = t.title || t.taskName || '';
+      const taskDesc = t.description || '';
+      const empDesc = t.employeeDescription || t.completionNotes || '';
+      const workCat = t.category || t.workCategory || 'Planned Work';
+      const tlName = t.assignedBy || t.teamLeaderName || 'Karthikeyan';
+      const levelStr = t.priority === 'High' ? 'High Level Task' : t.priority === 'Medium' ? 'Medium Level Task' : t.priority === 'Low' ? 'Low Level Task' : 'High Level Task';
+      const taskType = t.taskType || 'Project';
+      const status = t.status || 'In Progress';
+      const dueDate = t.dueDate || '';
+      const startDate = t.startDate || '';
+      const endDate = t.endDate || (t.status === 'Completed' ? (t.dueDate || '-') : '-');
 
-TASK DETAILS BREAKDOWN:
-------------------------------------------
-${effectiveTasks.map(t => `[${t.taskCode || t.id}] ${t.title} | Status: ${t.status} | Start: ${t.startDate || '—'} | Due: ${t.dueDate || '—'} | Actual Hours: ${t.actualTime || 0} hrs`).join('\n')}
-`;
+      return `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${empName}</td>
+          <td>${projectName}</td>
+          <td><strong>${taskName}</strong></td>
+          <td>${taskDesc}</td>
+          <td>${empDesc}</td>
+          <td>${workCat}</td>
+          <td>${tlName}</td>
+          <td>${levelStr}</td>
+          <td>${taskType}</td>
+          <td>${status}</td>
+          <td>${dueDate}</td>
+          <td>${startDate}</td>
+          <td>${endDate}</td>
+        </tr>
+      `;
+    }).join('');
 
-    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${role}_Task_Summary_${new Date().toISOString().slice(0,10)}.txt`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Petals Automation — Task Audit Report</title>
+        <style>
+          @page { size: A4 landscape; margin: 8mm; }
+          body { font-family: Arial, sans-serif; font-size: 10px; color: #000; margin: 0; padding: 10px; }
+          h2 { margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; }
+          table { width: 100%; border-collapse: collapse; font-size: 9px; }
+          th, td { border: 1px solid #000; padding: 4px 6px; text-align: left; vertical-align: top; word-break: break-word; }
+          th { background-color: #e2e8f0; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h2>PETALS AUTOMATION PVT. LTD. — TASK MANAGEMENT REPORT</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>S. NO</th>
+              <th>EMPLOYEE NAME</th>
+              <th>PROJECT NAME</th>
+              <th>TASK NAME</th>
+              <th>TASK DESCRIPTION</th>
+              <th>EMPLOYEE DESCRIPTION</th>
+              <th>WORK CATEGORY</th>
+              <th>T L NAME</th>
+              <th>TASK LEVEL</th>
+              <th>TASK TYPE</th>
+              <th>STATUS</th>
+              <th>DUE DATE</th>
+              <th>START DATE</th>
+              <th>END DATE</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRowsHtml}
+          </tbody>
+        </table>
+        <script>
+          window.onload = function() { window.print(); };
+        </script>
+      </body>
+      </html>
+    `;
 
-    onTriggerToast('PDF / Summary Report downloaded! 📄', 'success');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    onTriggerToast(`PDF Task Audit Report generated for printing (${effectiveTasks.length} tasks)! 📄`, 'success');
   };
 
   return (
