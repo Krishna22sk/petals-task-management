@@ -111,8 +111,24 @@ if (fs.existsSync(distPath)) {
   });
 }
 
+import { exec } from 'child_process';
+
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🌸 Petals Automation Enterprise SaaS REST API running on port ${PORT}`);
+
+  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+    exec('npx prisma db push --accept-data-loss', { cwd: process.cwd() }, (err, stdout, stderr) => {
+      if (err) {
+        logger.error(`Prisma db push error: ${stderr || err.message}`);
+      } else {
+        logger.info('Prisma database schema synchronized cleanly in Railway PostgreSQL');
+        exec('node prisma/seed.js', { cwd: process.cwd() }, (seedErr) => {
+          if (seedErr) logger.error(`Prisma seed error: ${seedErr.message}`);
+          else logger.info('Database seed completed successfully');
+        });
+      }
+    });
+  }
 });
 
 export default app;
