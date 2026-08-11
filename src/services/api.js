@@ -1,5 +1,8 @@
 // API Client for Petals Automation REST Backend
 let rawBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').trim();
+if (!rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://')) {
+  rawBaseUrl = `https://${rawBaseUrl}`;
+}
 if (rawBaseUrl.endsWith('/')) {
   rawBaseUrl = rawBaseUrl.slice(0, -1);
 }
