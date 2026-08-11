@@ -37,19 +37,10 @@ const allowedOrigins = [
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser requests (e.g. Postman, mobile app) or dev mode without origin
-    if (!origin || process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-    if (allowedOrigins.some(allowed => origin.startsWith(allowed) || allowed === '*')) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS policy violation: Origin '${origin}' is not allowed by Access-Control-Allow-Origin.`));
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Access-Control-Allow-Origin', 'Access-Control-Allow-Headers', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 }));
 
 app.options('*', cors());
