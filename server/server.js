@@ -112,7 +112,7 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🌸 Petals Automation Enterprise SaaS REST API running on port ${PORT}`);
 });
 
