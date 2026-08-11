@@ -37,16 +37,59 @@ export const login = async (req, res, next) => {
       }
     }
 
-    // Auto-seed fallback if user record wasn't found for default admin/tl/emp email
+    // Auto-create default accounts directly in Railway PostgreSQL if not present
     if (!user && (cleanEmail === 'admin@petals.com' || cleanEmail === 'tl@petals.com' || cleanEmail === 'emp@petals.com')) {
       try {
-        const { execSync } = await import('child_process');
-        execSync('node prisma/seed.js', { cwd: process.cwd() });
-        user = await prisma.user.findUnique({
-          where: { email: cleanEmail },
+        const isAdmin = cleanEmail === 'admin@petals.com';
+        const isTL = cleanEmail === 'tl@petals.com';
+        const roleName = isAdmin ? 'Admin' : isTL ? 'Team Leader' : 'Employee';
+        const userName = isAdmin ? 'Sarah Jenkins' : isTL ? 'Rajesh Kulkarni' : 'Dish';
+
+        const roleRecord = await prisma.role.upsert({
+          where: { role_name: roleName },
+          update: {},
+          create: { role_name: roleName, description: `${roleName} role` },
+        });
+
+        const deptRecord = await prisma.department.upsert({
+          where: { department_name: 'Human Resources & Executive' },
+          update: {},
+          create: { department_name: 'Human Resources & Executive', code: 'HRE' },
+        });
+
+        const hashedPassword = await bcrypt.hash(password || (isAdmin ? 'admin123' : 'tl123'), 10);
+
+        user = await prisma.user.create({
+          data: {
+            id: isAdmin ? 'usr-admin' : isTL ? 'usr-tl' : 'usr-emp',
+            name: userName,
+            email: cleanEmail,
+            password: hashedPassword,
+            role_id: roleRecord.id,
+            department_id: deptRecord.id,
+            designation_id: isAdmin ? 'VP of HR & Operations' : 'Lead Engineer',
+            status: 'Active',
+          },
           include: { role: true, department: true },
         });
-      } catch (e) {}
+
+        await prisma.employee.upsert({
+          where: { email: cleanEmail },
+          update: {},
+          create: {
+            id: isAdmin ? 'emp-001' : isTL ? 'emp-002' : 'emp-003',
+            user_id: user.id,
+            name: userName,
+            email: cleanEmail,
+            role: roleName,
+            designation: user.designation_id,
+            department: deptRecord.department_name,
+            status: 'Active',
+          },
+        }).catch(() => {});
+      } catch (autoCreateErr) {
+        console.error('Direct user creation error:', autoCreateErr.message);
+      }
     }
 
     if (!user) {
