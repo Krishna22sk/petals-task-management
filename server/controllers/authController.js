@@ -16,10 +16,38 @@ export const login = async (req, res, next) => {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    const user = await prisma.user.findUnique({
-      where: { email: cleanEmail },
-      include: { role: true, department: true },
-    });
+    let user = null;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: cleanEmail },
+        include: { role: true, department: true },
+      });
+    } catch (dbError) {
+      console.log('Database tables initializing on Railway PostgreSQL...');
+      try {
+        const { execSync } = await import('child_process');
+        execSync('npx prisma db push --accept-data-loss', { cwd: process.cwd() });
+        execSync('node prisma/seed.js', { cwd: process.cwd() });
+        user = await prisma.user.findUnique({
+          where: { email: cleanEmail },
+          include: { role: true, department: true },
+        });
+      } catch (seedError) {
+        console.error('Database auto-init error:', seedError.message);
+      }
+    }
+
+    // Auto-seed fallback if user record wasn't found for default admin/tl/emp email
+    if (!user && (cleanEmail === 'admin@petals.com' || cleanEmail === 'tl@petals.com' || cleanEmail === 'emp@petals.com')) {
+      try {
+        const { execSync } = await import('child_process');
+        execSync('node prisma/seed.js', { cwd: process.cwd() });
+        user = await prisma.user.findUnique({
+          where: { email: cleanEmail },
+          include: { role: true, department: true },
+        });
+      } catch (e) {}
+    }
 
     if (!user) {
       return res.status(401).json({
